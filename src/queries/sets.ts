@@ -36,6 +36,11 @@ export const GET_PLAYER_SETS = gql`
               selectionValue
               entrant {
                 id
+                participants {
+                  player {
+                    id
+                  }
+                }
               }
             }
           }

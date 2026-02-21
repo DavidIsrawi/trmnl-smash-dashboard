@@ -64,6 +64,11 @@ export interface GameSelection {
   selectionValue: number;
   entrant: {
     id: string;
+    participants: {
+      player: {
+        id: string;
+      };
+    }[];
   };
 }
 

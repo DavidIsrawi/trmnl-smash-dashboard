@@ -226,7 +226,7 @@ export class StartGGSmashData implements ISmashData {
 
           if (!game.selections) continue;
           const selection = game.selections.find(
-            (s) => s.entrant.id === set.slots[userSlotIndex].entrant.id,
+            (s) => s.entrant.participants.some((p) => p.player.id === playerId),
           );
           if (selection) {
             const charId = selection.selectionValue;
@@ -287,7 +287,7 @@ export class StartGGSmashData implements ISmashData {
         for (const game of set.games) {
           if (!game.selections) continue;
           const selection = game.selections.find(
-            (s) => s.entrant.id === set.slots[userSlotIndex].entrant.id,
+            (s) => s.entrant.participants.some((p) => p.player.id === playerId),
           );
           if (selection) {
             charCounts[selection.selectionValue] = (charCounts[selection.selectionValue] || 0) + 1;
