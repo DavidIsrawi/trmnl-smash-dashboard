@@ -46,7 +46,7 @@ export class StartGGSmashData implements ISmashData {
     const [upcoming, recentEvents, recentSets] = await Promise.all([
       this.fetchUpcomingTournaments(userData.id),
       this.fetchRecentEvents(userData.id),
-      this.fetchPlayerSets(userData.player.id, 1, 50),
+      this.fetchPlayerSets(userData.player.id, 1, 25),
     ]);
 
     return this.buildPayload(userData, upcoming, recentEvents, recentSets);
@@ -201,15 +201,18 @@ export class StartGGSmashData implements ISmashData {
     const charUsage: Record<string, number> = {};
 
     for (const set of recentSets) {
-      const isWin = set.winnerId === Number(playerId);
-      if (isWin) wins++;
-      else losses++;
-
       const userSlotIndex = set.slots.findIndex((s) =>
         s.entrant.participants.some((p) => p.player.id === playerId),
       );
 
-      if (userSlotIndex !== -1 && set.games) {
+      if (userSlotIndex === -1) continue;
+
+      const userEntrantId = Number(set.slots[userSlotIndex].entrant.id);
+      const isWin = set.winnerId === userEntrantId;
+      if (isWin) wins++;
+      else losses++;
+
+      if (set.games) {
         for (const game of set.games) {
           if (!game.selections) continue;
           const selection = game.selections.find(

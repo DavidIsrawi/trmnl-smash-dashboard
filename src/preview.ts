@@ -7,41 +7,47 @@ const engine = new Liquid();
 
 const mockData: SmashPluginData = {
   user: {
-    gamerTag: 'MkLeo',
-    images: []
+    gamerTag: 'Dahveed',
+    images: [
+      {
+        id: '2948184',
+        url: 'https://images.start.gg/images/user/1114021/image-d904c0bd0ca3c74cc0242188571d3fa9.jpg?ehk=FeHLFGUXMAMW8SYyrwPAygviagn99IX2%2BWHsLN2jD0U%3D&ehkOptimized=cWpUBDh91HOjuhqZgoqR7fBnWXlASKrljCjWuspmb8A%3D',
+        type: 'profile'
+      }
+    ]
   },
   season: {
     win_rate: 65,
-    wins: 107,
-    losses: 58,
+    wins: 47,
+    losses: 25,
     top_chars: [
-      { name: 'Byleth', usage_count: 64, image_url: 'https://images.start.gg/images/character/1539/image-a7b3c5686c170a688cbd22ed36f9dac5.png?ehk=rxCMSD5p27H9Ow5lEGiHRlqDfkvgr6uVgJMAeZEyTAM%3D&ehkOptimized=DdRKJyoOywTpAzHV9xxgQ07bmrqvK18taOfuVZ%2FH5Tw%3D' },
-      { name: 'Joker', usage_count: 43, image_url: 'https://images.start.gg/images/character/1453/image-b284052b845b6584f82c5c6d7dd71c55.png?ehk=Ezb4ec1g7C2rjTUyYhFmzupri0qgVmgJdYxT0R7UUNw%3D&ehkOptimized=OW2SIJlReatDRTRJK%2Fb0WECcoOnEZ92O%2FqOijp1neBY%3D' }
+      { name: 'King K. Rool', usage_count: 66, image_url: 'https://images.start.gg/images/character/1407/image-649a64550b8848a082dbf9b8d6e545d1.png?ehk=RHaPklJczUB21bhnLnALkwi4XQXxRlZdpJUbo1S7SMk%3D&ehkOptimized=F4qN1P5o3OPxGHmBl4MA9SfxS2zLdSrbZ2%2FRLFYoILE%3D' },
+      { name: 'R.O.B.', usage_count: 6, image_url: 'https://images.start.gg/images/character/1323/image-ff45bd739bb70c5b557247b071757f9c.png?ehk=GTLNejSa6BYTPzaBO%2FThijmCIzfj6tJ5dsZcyOBCZu8%3D&ehkOptimized=T8O79GGv3DdxUB5LDUeRNy9G6RzpR4GeLlQBWulkrFE%3D' }
     ]
   },
   next_tournament: {
     name: 'Genesis X',
     days_remaining: 14,
-    image_url: 'https://images.start.gg/images/tournament/536257/image-a41764722525540306d860160f252445.png'
+    image_url: 'https://images.start.gg/images/tournament/756975/image-0c9da33e1bcad42e0104a43f02623183.png'
   },
   latest_result: {
-    rank: 1,
-    trend: 3,
-    event_name: 'Ultimate Singles',
-    tournament_name: 'Smash Factor X',
-    date: 'Jul 28',
-    location: 'Mexico City',
-    entrants: 1024,
-    char_image_url: 'https://images.start.gg/images/character/1453/image-c20b242549ef4e04a470a5225c1d862c.png?ehk=gYJay258HIpJyvp%2FqZyP42lK7aj8tt4XPlebXsCcziI%3D&ehkOptimized=%2BDDRskb70C1AckH%2BoowpLxLYqbyCLRWjGa2Asd0tS5k%3D',
-    char_played: 'Joker'
+    rank: 7,
+    trend: 1,
+    event_name: 'Ultimate Singles (ALTERNATE STAGE LIST)',
+    tournament_name: 'Octagon #150',
+    date: 'Feb 17',
+    location: 'Seattle',
+    entrants: 46,
+    char_image_url: 'https://images.start.gg/images/character/1407/image-c8adee7aaf47b788e22ad79842aba06c.png?ehk=y33xj%2BHmrlUyx%2BaIocE0rt7gQpFEy%2FOh%2BI88dbevV0U%3D&ehkOptimized=mEtPbfhGopCXphR7tniuMF%2BXpiG10eWejj331QSrRzQ%3D',
+    char_played: 'King K. Rool'
   },
   previous_result: {
-    rank: 4,
-    event_name: 'Ultimate Singles',
-    tournament_name: 'Super Smash Con',
-    date: 'Aug 10',
-    entrants: 2500,
-    char_played: 'Byleth'
+    rank: 3,
+    event_name: 'Ultimate Doubles',
+    tournament_name: 'Octagon #150',
+    date: 'Feb 17',
+    entrants: 20,
+    char_played: 'King K. Rool'
   }
 };
 
