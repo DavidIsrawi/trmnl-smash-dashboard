@@ -37,7 +37,8 @@ export const GET_RECENT_EVENTS = gql`
               type
             }
           }
-          userEntrant {
+          userEntrant(userId: $userId) {
+            initialSeedNum
             standing {
               placement
             }
