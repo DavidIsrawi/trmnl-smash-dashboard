@@ -1,418 +1,409 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=800, height=480, initial-scale=1.0">
-    <title>TRMNL Smash Plugin V6</title>
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #000000;
-            --border-color: #000000;
-            --gray-100: #f3f3f3;
-            --gray-200: #e5e5e5;
-            --gray-800: #1a1a1a;
-        }
+<style>
+    :root {
+        --bg-color: #ffffff;
+        --text-color: #000000;
+        --border-color: #000000;
+        --gray-100: #f3f3f3;
+        --gray-200: #e5e5e5;
+        --gray-800: #1a1a1a;
+    }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
+    .smash-dashboard {
+        width: 800px;
+        height: 480px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        grid-template-rows: 1fr;
+        gap: 16px;
+        padding: 16px;
+        filter: grayscale(100%);
+        box-sizing: border-box;
+        position: relative;
+        -webkit-font-smoothing: antialiased;
+    }
 
-        body {
-            width: 800px;
-            height: 480px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 360px 1fr;
-            grid-template-rows: 1fr;
-            gap: 16px;
-            padding: 16px;
-            filter: grayscale(100%);
-        }
+    .smash-dashboard *, .smash-dashboard *::before, .smash-dashboard *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
 
-        /* --- UTILS --- */
-        .card {
-            border: 4px solid var(--border-color);
-            border-radius: 24px;
-            padding: 20px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            background: white;
-            box-shadow: 6px 6px 0px rgba(0,0,0,1);
-        }
+    /* --- UTILS --- */
+    .smash-dashboard .card {
+        border: 4px solid var(--border-color);
+        border-radius: 24px;
+        padding: 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        box-shadow: 6px 6px 0px rgba(0,0,0,1);
+    }
 
-        .label {
-            font-size: 14px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .label-icon {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: black;
-            border-radius: 2px;
-        }
+    .smash-dashboard .smash-label {
+        font-size: 14px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
 
-        /* --- LEFT COLUMN --- */
-        .left-col {
-            display: grid;
-            grid-template-rows: 1fr 1fr;
-            gap: 16px;
-        }
+    .smash-dashboard .label-icon {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background: black;
+        border-radius: 2px;
+    }
 
-        .top-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-        }
+    /* --- LEFT COLUMN --- */
+    .smash-dashboard .left-col {
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        gap: 16px;
+    }
 
-        /* Season Stats (Top-Left) */
-        .stats-card {
-            background-color: var(--gray-100);
-            justify-content: space-between;
-        }
-        
-        .win-rate {
-            font-size: 44px;
-            font-weight: 900;
-            line-height: 0.9;
-            margin-top: 4px;
-        }
-        
-        .record {
-            font-size: 16px;
-            font-weight: 700;
-            opacity: 0.8;
-            margin-bottom: 12px;
-        }
+    .smash-dashboard .top-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
 
-        .char-stats {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            border-top: 2px solid #ddd;
-            padding-top: 10px;
-        }
+    /* Season Stats (Top-Left) */
+    .smash-dashboard .stats-card {
+        background-color: var(--gray-100);
+        justify-content: space-between;
+    }
 
-        .char-row {
-            display: flex;
-            justify-content: space-between;
-            font-size: 13px;
-            font-weight: 700;
-        }
+    .smash-dashboard .win-rate {
+        font-size: 44px;
+        font-weight: 900;
+        line-height: 0.9;
+        margin-top: 4px;
+    }
 
-        /* Next Up (Top-Right) */
-        .next-card {
-            justify-content: space-between;
-            background-color: white;
-            overflow: hidden;
-            padding: 16px;
-        }
+    .smash-dashboard .record {
+        font-size: 16px;
+        font-weight: 700;
+        opacity: 0.8;
+        margin-bottom: 12px;
+    }
 
-        .next-logo-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 8px 0;
-        }
+    .smash-dashboard .char-stats {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        border-top: 2px solid #ddd;
+        padding-top: 10px;
+    }
 
-        .next-logo {
-            width: 50px;
-            height: 50px;
-            object-fit: contain;
-            filter: grayscale(100%) contrast(1.2);
-            border-radius: 50%;
-            border: 2px solid #eee;
-            padding: 2px;
-        }
-        
-        .next-info {
-            text-align: center;
-        }
+    .smash-dashboard .char-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 13px;
+        font-weight: 700;
+    }
 
-        .days-remaining {
-            font-size: 32px;
-            font-weight: 900;
-            line-height: 1;
-        }
-        
-        .days-label {
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: #666;
-        }
+    /* Next Up (Top-Right) */
+    .smash-dashboard .next-card {
+        justify-content: space-between;
+        background-color: white;
+        overflow: hidden;
+        padding: 16px;
+    }
 
-        .next-badge {
-            background: black;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 800;
-            text-align: center;
-            margin-top: 8px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    .smash-dashboard .next-logo-wrapper {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 8px 0;
+    }
 
-        /* Previous History (Bottom-Left) */
-        .history-card {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            padding: 0;
-            overflow: hidden;
-        }
+    .smash-dashboard .next-logo {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        filter: grayscale(100%) contrast(1.2);
+        border-radius: 50%;
+        border: 2px solid #eee;
+        padding: 2px;
+    }
 
-        .history-rank {
-            background: black;
-            color: white;
-            width: 110px;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            border-right: 4px solid black;
-            flex-shrink: 0;
-        }
-        
-        .rank-label {
-            font-size: 12px;
-            font-weight: 800;
-            margin-bottom: 0px;
-            opacity: 0.8;
-        }
+    .smash-dashboard .next-info {
+        text-align: center;
+    }
 
-        .rank-num {
-            font-size: 56px;
-            font-weight: 900;
-            line-height: 0.9;
-        }
-        
-        .history-details {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            flex: 1;
-            min-width: 0;
-        }
+    .smash-dashboard .days-remaining {
+        font-size: 32px;
+        font-weight: 900;
+        line-height: 1;
+    }
 
-        .history-label {
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            color: #888;
-            margin-bottom: 6px;
-        }
+    .smash-dashboard .days-label {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #666;
+    }
 
-        .history-title {
-            font-size: 26px; /* Increased from 22px */
-            font-weight: 900;
-            margin-bottom: 6px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.1;
-        }
+    .smash-dashboard .next-badge {
+        background: black;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 800;
+        text-align: center;
+        margin-top: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
-        .history-meta {
-            font-size: 17px; /* Increased from 15px */
-            color: #555;
-            font-weight: 600;
-        }
+    /* Previous History (Bottom-Left) */
+    .smash-dashboard .history-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0;
+        overflow: hidden;
+    }
 
-        .history-char {
-            margin-top: 8px;
-            font-size: 16px; /* Increased from 14px */
-            font-weight: 800;
-            color: black;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-        }
+    .smash-dashboard .history-rank {
+        background: black;
+        color: white;
+        width: 110px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        border-right: 4px solid black;
+        flex-shrink: 0;
+    }
 
-        /* --- RIGHT COLUMN (HERO) --- */
-        .hero-card {
-            padding: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-            position: relative;
-        }
+    .smash-dashboard .rank-label {
+        font-size: 12px;
+        font-weight: 800;
+        margin-bottom: 0px;
+        opacity: 0.8;
+    }
 
-        .hero-header {
-            padding: 28px;
-            z-index: 2;
-            position: relative;
-            flex: 1; /* Take up available space to push footer down */
-        }
+    .smash-dashboard .rank-num {
+        font-size: 56px;
+        font-weight: 900;
+        line-height: 0.9;
+    }
 
-        .hero-label {
-            background: black;
-            color: white;
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
+    .smash-dashboard .history-details {
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+        min-width: 0;
+    }
 
-        .hero-rank-large {
-            font-size: 150px;
-            font-weight: 900;
-            line-height: 0.8;
-            letter-spacing: -8px;
-            margin-left: -8px;
-            position: relative;
-            z-index: 2;
-        }
+    .smash-dashboard .history-label {
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        color: #888;
+        margin-bottom: 6px;
+    }
 
-        .mini-stat {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: #f0f0f0;
-            padding: 8px 14px;
-            border-radius: 10px;
-            border: 3px solid #000;
-            z-index: 3;
-            position: absolute;
-            font-weight: 800;
-            font-size: 16px;
-            box-shadow: 2px 2px 0px white; /* Subtle lift */
-        }
+    .smash-dashboard .history-title {
+        font-size: 26px;
+        font-weight: 900;
+        margin-bottom: 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.1;
+    }
 
-        /* Upset Factor (Trend) - Positioned next to rank */
-        .stat-trend {
-            font-size: 24px;
-            margin-left: 16px;
-            vertical-align: super;
-            position: relative;
-            top: -40px; /* Adjust to align with top of huge rank */
-            left: 0;
-            background: #f0f0f0;
-            display: inline-flex;
-            /* Resetting absolute for this specific inline usage if needed, but keeping consistent class */
-        }
-        
-        /* Inline Trend override */
-        .hero-trend-inline {
-            display: inline-flex;
-            align-items: center;
-            font-size: 24px;
-            font-weight: 800;
-            margin-left: 16px;
-            vertical-align: top;
-            background: #f0f0f0;
-            padding: 6px 10px;
-            border-radius: 8px;
-            border: 3px solid #000;
-            position: relative;
-            top: 20px;
-        }
+    .smash-dashboard .history-meta {
+        font-size: 17px;
+        color: #555;
+        font-weight: 600;
+    }
 
-        .trend-up {
-            width: 0; 
-            height: 0; 
-            border-left: 8px solid transparent;
-            border-right: 8px solid transparent;
-            border-bottom: 12px solid black;
-            margin-right: 6px;
-        }
+    .smash-dashboard .history-char {
+        margin-top: 8px;
+        font-size: 16px;
+        font-weight: 800;
+        color: black;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
 
-        /* Corner Stats */
-        .stat-entrants {
-            top: 20px;
-            right: 20px;
-        }
+    /* --- RIGHT COLUMN (HERO) --- */
+    .smash-dashboard .hero-card {
+        padding: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+        position: relative;
+    }
 
-        .stat-record {
-            bottom: 20px; /* Relative to the header/white area */
-            right: 20px;
-        }
+    .smash-dashboard .hero-header {
+        padding: 28px;
+        z-index: 2;
+        position: relative;
+        flex: 1;
+    }
 
-        .hero-image-container {
-            position: absolute;
-            bottom: 0;
-            right: -40px;
-            width: 420px;
-            height: 420px;
-            opacity: 0.15;
-            z-index: 1;
-            filter: grayscale(100%) contrast(140%);
-            pointer-events: none;
-        }
-        
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+    .smash-dashboard .hero-label {
+        background: black;
+        color: white;
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+    }
 
-        .hero-footer {
-            background: black;
-            color: white;
-            padding: 24px 28px;
-            z-index: 4; /* Above image */
-            position: relative;
-        }
+    .smash-dashboard .hero-rank-large {
+        font-size: 150px;
+        font-weight: 900;
+        line-height: 0.8;
+        letter-spacing: -8px;
+        margin-left: -8px;
+        position: relative;
+        z-index: 2;
+    }
 
-        .tourney-name {
-            font-size: 40px; /* Increased from 34px */
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -2px;
-            margin-bottom: 6px;
-            line-height: 1;
-        }
+    .smash-dashboard .mini-stat {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f0f0;
+        padding: 8px 14px;
+        border-radius: 10px;
+        border: 3px solid #000;
+        z-index: 3;
+        position: absolute;
+        font-weight: 800;
+        font-size: 16px;
+        box-shadow: 2px 2px 0px white;
+    }
 
-        .tourney-meta {
-            font-size: 18px;
-            color: #ccc;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        /* Dithering/Texture overlay */
-        .texture-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: radial-gradient(#000 1.5px, transparent 0);
-            background-size: 5px 5px;
-            opacity: 0.05;
-            pointer-events: none;
-            z-index: 10;
-        }
+    .smash-dashboard .stat-trend {
+        font-size: 24px;
+        margin-left: 16px;
+        vertical-align: super;
+        position: relative;
+        top: -40px;
+        left: 0;
+        background: #f0f0f0;
+        display: inline-flex;
+    }
 
-    </style>
-</head>
-<body>
+    .smash-dashboard .hero-trend-inline {
+        display: inline-flex;
+        align-items: center;
+        font-size: 24px;
+        font-weight: 800;
+        margin-left: 16px;
+        vertical-align: top;
+        background: #f0f0f0;
+        padding: 6px 10px;
+        border-radius: 8px;
+        border: 3px solid #000;
+        position: relative;
+        top: 20px;
+    }
+
+    .smash-dashboard .trend-up {
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-bottom: 12px solid black;
+        margin-right: 6px;
+    }
+
+    /* Corner Stats */
+    .smash-dashboard .stat-entrants {
+        top: 20px;
+        right: 20px;
+    }
+
+    .smash-dashboard .stat-record {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .smash-dashboard .hero-image-container {
+        position: absolute;
+        bottom: 0;
+        right: -40px;
+        width: 420px;
+        height: 420px;
+        opacity: 0.15;
+        z-index: 1;
+        filter: grayscale(100%) contrast(140%);
+        pointer-events: none;
+    }
+
+    .smash-dashboard .hero-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+
+    .smash-dashboard .hero-footer {
+        background: black;
+        color: white;
+        padding: 24px 28px;
+        z-index: 4;
+        position: relative;
+    }
+
+    .smash-dashboard .tourney-name {
+        font-size: 40px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -2px;
+        margin-bottom: 6px;
+        line-height: 1;
+    }
+
+    .smash-dashboard .tourney-meta {
+        font-size: 18px;
+        color: #ccc;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .smash-dashboard .texture-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(#000 1.5px, transparent 0);
+        background-size: 5px 5px;
+        opacity: 0.05;
+        pointer-events: none;
+        z-index: 10;
+    }
+</style>
+
+<div class="smash-dashboard">
     <div class="texture-overlay"></div>
 
     <!-- Left Column -->
@@ -422,16 +413,16 @@
             <!-- Season Stats -->
             <div class="card stats-card">
                 <div>
-                    <div class="label"><span class="label-icon"></span>Season</div>
+                    <div class="smash-label"><span class="label-icon"></span>Season</div>
                     <div class="win-rate">{{ season.win_rate }}%</div>
                     <div class="record">{{ season.wins }}W - {{ season.losses }}L</div>
                 </div>
-                
+
                 <div class="char-stats">
                     {% for char in season.top_chars %}
                     <div class="char-row">
                         <span>{{ char.name | upcase }}</span>
-                        <span>{{ char.usage_count }} Wins</span> <!-- Start.gg API might need usage logic refinement, assuming count -->
+                        <span>{{ char.usage_count }} Wins</span>
                     </div>
                     {% endfor %}
                 </div>
@@ -439,8 +430,8 @@
 
             <!-- Next Up -->
             <div class="card next-card">
-                <div class="label" style="margin-bottom: 0;"><span class="label-icon"></span>Next</div>
-                
+                <div class="smash-label" style="margin-bottom: 0;"><span class="label-icon"></span>Next</div>
+
                 {% if next_tournament %}
                 <div class="next-logo-wrapper">
                     {% if next_tournament.image_url %}
@@ -473,7 +464,7 @@
             <div class="history-details">
                 <div class="history-label">Previous Result</div>
                 <div class="history-title">{{ previous_result.event_name }}</div>
-                <div class="history-meta">{{ previous_result.date }} • {{ previous_result.entrants }} Entrants</div>
+                <div class="history-meta">{{ previous_result.date }} &bull; {{ previous_result.entrants }} Entrants</div>
                 <div class="history-char">
                     <span>Played: {{ previous_result.char_played }}</span>
                 </div>
@@ -491,7 +482,7 @@
         {% if latest_result %}
         <div class="hero-header">
             <div class="hero-label">Latest Result</div>
-            
+
             <!-- Entrants (Top Right Corner) -->
             <div class="mini-stat stat-entrants">
                 {{ latest_result.entrants }} Entrants
@@ -499,7 +490,6 @@
 
             <!-- Record (Bottom Right of Header Area) -->
             <div class="mini-stat stat-record">
-                <!-- We might need to fetch record for this specific event if possible, currently global season record is shown in other card -->
                 {{ season.wins }}W - {{ season.losses }}L
             </div>
 
@@ -507,11 +497,11 @@
             <div style="margin-top: 10px;">
                 <span class="hero-rank-large">#{{ latest_result.rank }}</span>
                 {% if latest_result.trend %}
-                <span class="hero-trend-inline"><div class="trend-up"></div>{{ latest_result.trend }}</span>
+                <span class="hero-trend-inline"><span class="trend-up"></span>{{ latest_result.trend }}</span>
                 {% endif %}
             </div>
         </div>
-        
+
         <div class="hero-image-container">
             {% if latest_result.char_image_url %}
             <img src="{{ latest_result.char_image_url }}" alt="Character" class="hero-image">
@@ -537,5 +527,4 @@
         </div>
         {% endif %}
     </div>
-</body>
-</html>
+</div>

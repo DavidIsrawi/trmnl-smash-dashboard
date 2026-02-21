@@ -50,7 +50,20 @@ async function generatePreview() {
     const templatePath = path.resolve('trmnl_template.liquid');
     const template = fs.readFileSync(templatePath, 'utf8');
 
-    const html = await engine.parseAndRender(template, mockData);
+    const rendered = await engine.parseAndRender(template, mockData);
+
+    const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=800, height=480, initial-scale=1.0">
+    <title>TRMNL Smash Plugin Preview</title>
+    <link rel="stylesheet" href="https://usetrmnl.com/css/latest/plugins.css">
+</head>
+<body class="environment trmnl">
+${rendered}
+</body>
+</html>`;
 
     fs.writeFileSync('preview.html', html);
     console.log('Preview generated at preview.html');
