@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+.DS_Store
+preview.html
+GEMINI.md
+.gemini
+.playwright-cli

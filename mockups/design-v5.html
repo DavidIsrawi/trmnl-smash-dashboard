@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=800, height=480, initial-scale=1.0">
+    <title>TRMNL Smash Plugin V5</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --border-color: #000000;
+            --gray-100: #f3f3f3;
+            --gray-200: #e5e5e5;
+            --gray-800: #1a1a1a;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            width: 800px;
+            height: 480px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            grid-template-rows: 1fr;
+            gap: 16px;
+            padding: 16px;
+            filter: grayscale(100%);
+        }
+
+        /* --- UTILS --- */
+        .card {
+            border: 4px solid var(--border-color);
+            border-radius: 24px;
+            padding: 20px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            box-shadow: 6px 6px 0px rgba(0,0,0,1);
+        }
+
+        .label {
+            font-size: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .label-icon {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: black;
+            border-radius: 2px;
+        }
+
+        /* --- LEFT COLUMN --- */
+        .left-col {
+            display: grid;
+            grid-template-rows: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .top-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        /* Season Stats (Top-Left) */
+        .stats-card {
+            background-color: var(--gray-100);
+            justify-content: space-between;
+        }
+        
+        .win-rate {
+            font-size: 44px;
+            font-weight: 900;
+            line-height: 0.9;
+            margin-top: 4px;
+        }
+        
+        .record {
+            font-size: 16px;
+            font-weight: 700;
+            opacity: 0.8;
+            margin-bottom: 12px;
+        }
+
+        .char-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            border-top: 2px solid #ddd;
+            padding-top: 10px;
+        }
+
+        .char-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        /* Next Up (Top-Right) */
+        .next-card {
+            justify-content: space-between;
+            background-color: white;
+            overflow: hidden;
+            padding: 16px;
+        }
+
+        .next-logo-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 8px 0;
+        }
+
+        .next-logo {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            filter: grayscale(100%) contrast(1.2);
+            border-radius: 50%;
+            border: 2px solid #eee;
+            padding: 2px;
+        }
+        
+        .next-info {
+            text-align: center;
+        }
+
+        .days-remaining {
+            font-size: 32px;
+            font-weight: 900;
+            line-height: 1;
+        }
+        
+        .days-label {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #666;
+        }
+
+        .next-badge {
+            background: black;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 800;
+            text-align: center;
+            margin-top: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Previous History (Bottom-Left) */
+        .history-card {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .history-rank {
+            background: black;
+            color: white;
+            width: 110px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-right: 4px solid black;
+            flex-shrink: 0;
+        }
+        
+        .rank-label {
+            font-size: 12px;
+            font-weight: 800;
+            margin-bottom: 0px;
+            opacity: 0.8;
+        }
+
+        .rank-num {
+            font-size: 56px;
+            font-weight: 900;
+            line-height: 0.9;
+        }
+        
+        .history-details {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .history-label {
+            font-size: 12px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .history-title {
+            font-size: 22px;
+            font-weight: 900;
+            margin-bottom: 6px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.1;
+        }
+
+        .history-meta {
+            font-size: 15px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .history-char {
+            margin-top: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            color: black;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- RIGHT COLUMN (HERO) --- */
+        .hero-card {
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: #fff;
+        }
+
+        .hero-header {
+            padding: 28px;
+            z-index: 2;
+            position: relative; /* Ensure z-index works */
+        }
+
+        .hero-label {
+            background: black;
+            color: white;
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .hero-rank-large {
+            font-size: 140px;
+            font-weight: 900;
+            line-height: 0.8;
+            letter-spacing: -6px;
+            margin-left: -8px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero-trend {
+            display: inline-flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 800;
+            margin-left: 16px;
+            vertical-align: super;
+            background: #f0f0f0;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 2px solid #000;
+            z-index: 2;
+            position: relative;
+        }
+
+        .trend-up {
+            width: 0; 
+            height: 0; 
+            border-left: 8px solid transparent;
+            border-right: 8px solid transparent;
+            border-bottom: 12px solid black;
+            margin-right: 6px;
+        }
+
+        .hero-stats-row {
+            margin-top: 24px;
+            display: flex;
+            gap: 24px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .hero-stat {
+            display: flex;
+            flex-direction: column;
+            background: rgba(255, 255, 255, 0.9); /* Add backing for readability */
+            padding: 4px 0;
+            border-radius: 4px;
+        }
+
+        .stat-val {
+            font-size: 26px;
+            font-weight: 900;
+        }
+
+        .stat-lbl {
+            font-size: 12px;
+            font-weight: 800;
+            color: #666;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+
+        .hero-image-container {
+            position: absolute;
+            bottom: -20px;
+            right: -40px;
+            width: 400px;
+            height: 400px;
+            opacity: 0.15; /* SIGNIFICANTLY REDUCED OPACITY */
+            z-index: 1;
+            filter: grayscale(100%) contrast(140%);
+        }
+        
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .hero-footer {
+            margin-top: auto;
+            background: black;
+            color: white;
+            padding: 24px 28px;
+            z-index: 2;
+            position: relative;
+        }
+
+        .tourney-name {
+            font-size: 34px;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 6px;
+            line-height: 1;
+        }
+
+        .tourney-meta {
+            font-size: 18px;
+            color: #ccc;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        /* Dithering/Texture overlay */
+        .texture-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(#000 1.5px, transparent 0);
+            background-size: 5px 5px;
+            opacity: 0.05;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="texture-overlay"></div>
+
+    <!-- Left Column -->
+    <div class="left-col">
+        <!-- Top Row -->
+        <div class="top-row">
+            <!-- Season Stats -->
+            <div class="card stats-card">
+                <div>
+                    <div class="label"><span class="label-icon"></span>Season</div>
+                    <div class="win-rate">58%</div>
+                    <div class="record">107W - 76L</div>
+                </div>
+                
+                <div class="char-stats">
+                    <div class="char-row">
+                        <span>K. ROOL</span>
+                        <span>64W-32L</span>
+                    </div>
+                    <div class="char-row">
+                        <span>R.O.B.</span>
+                        <span>43W-44L</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Next Up -->
+            <div class="card next-card">
+                <div class="label" style="margin-bottom: 0;"><span class="label-icon"></span>Next</div>
+                
+                <div class="next-logo-wrapper">
+                    <img src="https://images.start.gg/images/tournament/613437/tournament-banner-869858643875-1701384000.png" alt="Logo" class="next-logo">
+                </div>
+
+                <div class="next-info">
+                    <div class="days-remaining">3 DAYS</div>
+                </div>
+                <div class="next-badge">The Octagon 3</div>
+            </div>
+        </div>
+
+        <!-- Previous History -->
+        <div class="card history-card">
+            <div class="history-rank">
+                <span class="rank-label">RANK</span>
+                <span class="rank-num">13</span>
+            </div>
+            <div class="history-details">
+                <div class="history-label">Previous Result</div>
+                <div class="history-title">Supernova 2026</div>
+                <div class="history-meta">Aug 08 • 1,024 Entrants</div>
+                <div class="history-char">
+                    <span>Played: R.O.B.</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Column (Hero) -->
+    <div class="card hero-card">
+        <div class="hero-header">
+            <div class="hero-label">Latest Result</div>
+            <div>
+                <span class="hero-rank-large">#7</span>
+                <span class="hero-trend"><div class="trend-up"></div>+2</span>
+            </div>
+            
+            <div class="hero-stats-row">
+                <div class="hero-stat">
+                    <span class="stat-val">1,240</span>
+                    <span class="stat-lbl">Entrants</span>
+                </div>
+                <div class="hero-stat">
+                    <span class="stat-val">5W - 2L</span>
+                    <span class="stat-lbl">Record</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hero-image-container">
+            <img src="https://www.smashbros.com/assets_v2/img/fighter/king_k_rool/main.png" alt="King K Rool" class="hero-image">
+        </div>
+
+        <div class="hero-footer">
+            <div class="tourney-name">Riptide 2026</div>
+            <div class="tourney-meta">
+                <span>Oct 12-14</span>
+                <span>Sandusky, OH</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

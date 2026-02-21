@@ -1,0 +1,26 @@
+{
+  "name": "trmnl-smash-plugin",
+  "version": "1.0.0",
+  "description": "TRMNL Plugin for Super Smash Bros. Ultimate Tournament Data",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "npm run clean && tsc",
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "preview": "tsx src/preview.ts",
+    "test": "echo `Error: no test specified` && exit 0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "graphql": "^16.8.1",
+    "graphql-request": "^6.1.0",
+    "liquidjs": "^10.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.24",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  }
+}

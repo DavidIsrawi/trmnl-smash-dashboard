@@ -1,0 +1,261 @@
+import { GraphQLClient } from 'graphql-request';
+import { STARTGG_API_URL } from '../constants.js';
+import { GET_USER } from '../queries/user.js';
+import { GET_UPCOMING_TOURNAMENTS, GET_RECENT_EVENTS } from '../queries/tournaments.js';
+import { GET_PLAYER_SETS } from '../queries/sets.js';
+import { getCharacterName, getCharacterStockIcon, getCharacterIcon } from '../characters.js';
+import { calculateDaysRemaining, formatDate } from '../utils.js';
+import type {
+  ISmashData,
+  SmashPluginData,
+  User,
+  UpcomingTournament,
+  RecentEventNode,
+  Set,
+} from '../types.js';
+
+interface ProcessedEvent {
+  id: string;
+  name: string;
+  numEntrants: number;
+  placement: number;
+  tournament: {
+    name: string;
+    startAt: number;
+    city?: string;
+    addrState?: string;
+    images: { url: string; type: string }[];
+  };
+}
+
+export class StartGGSmashData implements ISmashData {
+  private client: GraphQLClient;
+  private slug: string;
+
+  constructor(token: string, slug: string) {
+    this.client = new GraphQLClient(STARTGG_API_URL, {
+      headers: { authorization: `Bearer ${token}` },
+    });
+    this.slug = slug;
+  }
+
+  async fetchData(): Promise<SmashPluginData> {
+    const slugPart = this.slug.includes('/') ? this.slug.split('/')[1] : this.slug;
+    const userData = await this.fetchUserData(slugPart);
+
+    if (!userData) {
+      throw new Error('User not found');
+    }
+
+    console.log(`User found: ${userData.player.gamerTag} (ID: ${userData.player.id})`);
+
+    const [upcoming, recentEvents, recentSets] = await Promise.all([
+      this.fetchUpcomingTournaments(userData.id),
+      this.fetchRecentEvents(userData.id),
+      this.fetchPlayerSets(userData.player.id, 1, 50),
+    ]);
+
+    return this.buildPayload(userData, upcoming, recentEvents, recentSets);
+  }
+
+  // ─── API Methods ─────────────────────────────────────────────────
+
+  private async fetchUserData(slug: string): Promise<User | null> {
+    const data = await this.client.request<{ user: User }>(GET_USER, { slug });
+    return data.user;
+  }
+
+  private async fetchUpcomingTournaments(userId: string): Promise<UpcomingTournament[]> {
+    const data = await this.client.request<{
+      user: { tournaments: { nodes: UpcomingTournament[] } };
+    }>(GET_UPCOMING_TOURNAMENTS, { userId });
+    return data.user.tournaments.nodes;
+  }
+
+  private async fetchRecentEvents(userId: string): Promise<ProcessedEvent[]> {
+    try {
+      const data = await this.client.request<{
+        user: { events: { nodes: RecentEventNode[] } };
+      }>(GET_RECENT_EVENTS, { userId });
+
+      return data.user.events.nodes.map((node) => ({
+        ...node,
+        placement: node.userEntrant?.standing?.placement || 0,
+      }));
+    } catch (e) {
+      console.error("Error fetching recent events:", e);
+      return [];
+    }
+  }
+
+  private async fetchPlayerSets(playerId: string, page: number, perPage: number): Promise<Set[]> {
+    const data = await this.client.request<{ player: { sets: { nodes: Set[] } } }>(
+      GET_PLAYER_SETS,
+      { playerId, page, perPage },
+    );
+    return data.player.sets.nodes;
+  }
+
+  // ─── Processing Logic ────────────────────────────────────────────
+
+  private buildPayload(
+    userData: User,
+    upcoming: UpcomingTournament[],
+    recentEvents: ProcessedEvent[],
+    recentSets: Set[],
+  ): SmashPluginData {
+    const { wins, losses, charUsage } = this.computeSeasonStats(recentSets, userData.player.id);
+    const totalSets = wins + losses;
+    const winRate = totalSets > 0 ? Math.round((wins / totalSets) * 100) : 0;
+
+    const sortedChars = Object.entries(charUsage)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, 2)
+      .map(([idStr, count]) => {
+        const charId = Number(idStr);
+        return {
+          name: getCharacterName(charId),
+          usage_count: count,
+          image_url: getCharacterStockIcon(charId),
+        };
+      });
+
+    const nextTournament = upcoming[0]
+      ? {
+          name: upcoming[0].name,
+          days_remaining: calculateDaysRemaining(upcoming[0].startAt),
+          image_url: upcoming[0].images.find((i) => i.type === 'profile')?.url,
+        }
+      : undefined;
+
+    const latestEvent = recentEvents[0];
+    const previousEvent = recentEvents[1];
+
+    const latestCharInfo = latestEvent
+      ? this.findMostPlayedCharInEvent(recentSets, latestEvent.id, userData.player.id)
+      : undefined;
+
+    const previousCharInfo = previousEvent
+      ? this.findMostPlayedCharInEvent(recentSets, previousEvent.id, userData.player.id)
+      : undefined;
+
+    const trend =
+      latestEvent && previousEvent
+        ? previousEvent.placement - latestEvent.placement
+        : undefined;
+
+    const latestResult = latestEvent
+      ? {
+          rank: latestEvent.placement,
+          trend,
+          event_name: latestEvent.name,
+          tournament_name: latestEvent.tournament.name,
+          date: formatDate(latestEvent.tournament.startAt),
+          location: latestEvent.tournament.city || 'Online',
+          entrants: latestEvent.numEntrants,
+          char_image_url: latestCharInfo?.icon,
+          char_played: latestCharInfo?.name,
+        }
+      : undefined;
+
+    const previousResult = previousEvent
+      ? {
+          rank: previousEvent.placement,
+          event_name: previousEvent.name,
+          tournament_name: previousEvent.tournament.name,
+          date: formatDate(previousEvent.tournament.startAt),
+          entrants: previousEvent.numEntrants,
+          char_played: previousCharInfo?.name,
+        }
+      : undefined;
+
+    return {
+      user: {
+        gamerTag: userData.player.gamerTag,
+        images: userData.images,
+      },
+      season: {
+        win_rate: winRate,
+        wins,
+        losses,
+        top_chars: sortedChars,
+      },
+      next_tournament: nextTournament,
+      latest_result: latestResult,
+      previous_result: previousResult,
+    };
+  }
+
+  private computeSeasonStats(
+    recentSets: Set[],
+    playerId: string,
+  ): { wins: number; losses: number; charUsage: Record<string, number> } {
+    let wins = 0;
+    let losses = 0;
+    const charUsage: Record<string, number> = {};
+
+    for (const set of recentSets) {
+      const isWin = set.winnerId === Number(playerId);
+      if (isWin) wins++;
+      else losses++;
+
+      const userSlotIndex = set.slots.findIndex((s) =>
+        s.entrant.participants.some((p) => p.player.id === playerId),
+      );
+
+      if (userSlotIndex !== -1 && set.games) {
+        for (const game of set.games) {
+          if (!game.selections) continue;
+          const selection = game.selections.find(
+            (s) => s.entrant.id === set.slots[userSlotIndex].entrant.id,
+          );
+          if (selection) {
+            const charId = selection.selectionValue;
+            charUsage[charId] = (charUsage[charId] || 0) + 1;
+          }
+        }
+      }
+    }
+
+    return { wins, losses, charUsage };
+  }
+
+  private findMostPlayedCharInEvent(
+    recentSets: Set[],
+    eventId: string,
+    playerId: string,
+  ): { name: string; icon?: string } | undefined {
+    const charCounts: Record<number, number> = {};
+
+    const eventSets = recentSets.filter((s) => s.event.id === eventId);
+
+    for (const set of eventSets) {
+      const userSlotIndex = set.slots.findIndex((s) =>
+        s.entrant.participants.some((p) => p.player.id === playerId),
+      );
+
+      if (userSlotIndex !== -1 && set.games) {
+        for (const game of set.games) {
+          if (!game.selections) continue;
+          const selection = game.selections.find(
+            (s) => s.entrant.id === set.slots[userSlotIndex].entrant.id,
+          );
+          if (selection) {
+            charCounts[selection.selectionValue] = (charCounts[selection.selectionValue] || 0) + 1;
+          }
+        }
+      }
+    }
+
+    const entries = Object.entries(charCounts);
+    if (entries.length === 0) return undefined;
+
+    const [topCharIdStr] = entries.sort(([, a], [, b]) => b - a)[0];
+    const topCharId = Number(topCharIdStr);
+
+    return {
+      name: getCharacterName(topCharId),
+      icon: getCharacterIcon(topCharId),
+    };
+  }
+}
