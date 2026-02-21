@@ -4,7 +4,7 @@ import { GET_CURRENT_USER } from '../queries/user.js';
 import { GET_UPCOMING_TOURNAMENTS, GET_RECENT_EVENTS } from '../queries/tournaments.js';
 import { GET_PLAYER_SETS } from '../queries/sets.js';
 import { getCharacterName, getCharacterStockIcon, getCharacterIcon } from '../characters.js';
-import { calculateDaysRemaining, formatDate } from '../utils.js';
+import { calculateDaysRemaining, formatDate, calculateUpsetFactor } from '../utils.js';
 import type {
   ISmashData,
   SmashPluginData,
@@ -19,6 +19,7 @@ interface ProcessedEvent {
   name: string;
   numEntrants: number;
   placement: number;
+  initialSeedNum?: number;
   tournament: {
     name: string;
     startAt: number;
@@ -87,6 +88,7 @@ export class StartGGSmashData implements ISmashData {
       return data.user.events.nodes.map((node) => ({
         ...node,
         placement: node.userEntrant?.standing?.placement || 0,
+        initialSeedNum: node.userEntrant?.initialSeedNum ?? undefined,
       }));
     } catch (e) {
       console.error("Error fetching recent events:", e);
@@ -145,20 +147,24 @@ export class StartGGSmashData implements ISmashData {
       ? this.findMostPlayedCharInEvent(recentSets, previousEvent.id, userData.player.id)
       : undefined;
 
-    const trend =
-      latestEvent && previousEvent
-        ? previousEvent.placement - latestEvent.placement
-        : undefined;
+    const latestEventRecord = latestEvent
+      ? this.computeEventRecord(recentSets, latestEvent.id, userData.player.id)
+      : undefined;
 
     const latestResult = latestEvent
       ? {
           rank: latestEvent.placement,
-          trend,
+          upset_factor:
+            latestEvent.initialSeedNum && latestEvent.placement
+              ? calculateUpsetFactor(latestEvent.initialSeedNum, latestEvent.placement)
+              : undefined,
           event_name: latestEvent.name,
           tournament_name: latestEvent.tournament.name,
           date: formatDate(latestEvent.tournament.startAt),
           location: latestEvent.tournament.city || 'Online',
           entrants: latestEvent.numEntrants,
+          wins: latestEventRecord!.wins,
+          losses: latestEventRecord!.losses,
           char_image_url: latestCharInfo?.icon,
           char_played: latestCharInfo?.name,
         }
@@ -167,6 +173,10 @@ export class StartGGSmashData implements ISmashData {
     const previousResult = previousEvent
       ? {
           rank: previousEvent.placement,
+          upset_factor:
+            previousEvent.initialSeedNum && previousEvent.placement
+              ? calculateUpsetFactor(previousEvent.initialSeedNum, previousEvent.placement)
+              : undefined,
           event_name: previousEvent.name,
           tournament_name: previousEvent.tournament.name,
           date: formatDate(previousEvent.tournament.startAt),
@@ -227,6 +237,31 @@ export class StartGGSmashData implements ISmashData {
     }
 
     return { wins, losses, charUsage };
+  }
+
+  private computeEventRecord(
+    recentSets: Set[],
+    eventId: string,
+    playerId: string,
+  ): { wins: number; losses: number } {
+    let wins = 0;
+    let losses = 0;
+
+    const eventSets = recentSets.filter((s) => s.event.id === eventId);
+
+    for (const set of eventSets) {
+      const userSlotIndex = set.slots.findIndex((s) =>
+        s.entrant.participants.some((p) => p.player.id === playerId),
+      );
+
+      if (userSlotIndex === -1) continue;
+
+      const userEntrantId = Number(set.slots[userSlotIndex].entrant.id);
+      if (set.winnerId === userEntrantId) wins++;
+      else losses++;
+    }
+
+    return { wins, losses };
   }
 
   private findMostPlayedCharInEvent(

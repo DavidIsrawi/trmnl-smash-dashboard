@@ -103,6 +103,7 @@ export interface RecentEventNode {
     images: { url: string; type: string }[];
   };
   userEntrant?: {
+    initialSeedNum?: number;
     standing?: {
       placement: number;
     };
@@ -166,18 +167,21 @@ export interface NextTournament {
 
 export interface LatestResult {
   rank: number;
-  trend?: number;
+  upset_factor?: number;
   event_name: string;
   tournament_name: string;
   date: string;
   location: string;
   entrants: number;
+  wins: number;
+  losses: number;
   char_image_url?: string;
   char_played?: string;
 }
 
 export interface PreviousResult {
   rank: number;
+  upset_factor?: number;
   event_name: string;
   tournament_name: string;
   date: string;

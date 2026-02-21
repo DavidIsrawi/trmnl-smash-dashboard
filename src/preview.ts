@@ -32,17 +32,20 @@ const mockData: SmashPluginData = {
   },
   latest_result: {
     rank: 7,
-    trend: 1,
+    upset_factor: 3,
     event_name: 'Ultimate Singles (ALTERNATE STAGE LIST)',
     tournament_name: 'Octagon #150',
     date: 'Feb 17',
     location: 'Seattle',
     entrants: 46,
+    wins: 5,
+    losses: 2,
     char_image_url: 'https://images.start.gg/images/character/1407/image-c8adee7aaf47b788e22ad79842aba06c.png?ehk=y33xj%2BHmrlUyx%2BaIocE0rt7gQpFEy%2FOh%2BI88dbevV0U%3D&ehkOptimized=mEtPbfhGopCXphR7tniuMF%2BXpiG10eWejj331QSrRzQ%3D',
     char_played: 'King K. Rool'
   },
   previous_result: {
     rank: 3,
+    upset_factor: 1,
     event_name: 'Ultimate Doubles',
     tournament_name: 'Octagon #150',
     date: 'Feb 17',

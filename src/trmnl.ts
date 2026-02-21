@@ -14,7 +14,7 @@ export class TrmnlClient {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ merge_variables: payload }),
       });
 
       if (!response.ok) {

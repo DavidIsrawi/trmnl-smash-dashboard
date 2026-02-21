@@ -224,9 +224,7 @@
         font-size: 26px;
         font-weight: 900;
         margin-bottom: 6px;
-        white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis;
         line-height: 1.1;
     }
 
@@ -243,7 +241,23 @@
         color: black;
         display: flex;
         align-items: center;
-        gap: 4px;
+        gap: 8px;
+    }
+
+    .smash-dashboard .history-uf {
+        display: inline-flex;
+        align-items: center;
+        font-size: 14px;
+        font-weight: 800;
+        background: #f0f0f0;
+        padding: 4px 10px;
+        border-radius: 8px;
+        border: 3px solid #000;
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 2;
+        box-shadow: 2px 2px 0px white;
     }
 
     /* --- RIGHT COLUMN (HERO) --- */
@@ -300,30 +314,18 @@
         box-shadow: 2px 2px 0px white;
     }
 
-    .smash-dashboard .stat-trend {
-        font-size: 24px;
-        margin-left: 16px;
-        vertical-align: super;
-        position: relative;
-        top: -40px;
-        left: 0;
-        background: #f0f0f0;
-        display: inline-flex;
-    }
-
     .smash-dashboard .hero-trend-inline {
         display: inline-flex;
         align-items: center;
         font-size: 24px;
         font-weight: 800;
-        margin-left: 16px;
-        vertical-align: top;
         background: #f0f0f0;
         padding: 6px 10px;
         border-radius: 8px;
         border: 3px solid #000;
         position: relative;
-        top: 20px;
+        z-index: 2;
+        margin-top: 12px;
     }
 
     .smash-dashboard .trend-up {
@@ -332,6 +334,23 @@
         border-left: 8px solid transparent;
         border-right: 8px solid transparent;
         border-bottom: 12px solid black;
+        margin-right: 6px;
+    }
+
+    .smash-dashboard .trend-down {
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 12px solid black;
+        margin-right: 6px;
+    }
+
+    .smash-dashboard .trend-neutral {
+        width: 16px;
+        height: 4px;
+        background: black;
+        border-radius: 2px;
         margin-right: 6px;
     }
 
@@ -457,8 +476,20 @@
         <!-- Previous History -->
         <div class="card history-card">
             {% if previous_result %}
+            {% if previous_result.upset_factor != null %}
+            <span class="history-uf">
+                {% if previous_result.upset_factor > 0 %}
+                <span class="trend-up"></span>
+                {% elsif previous_result.upset_factor == 0 %}
+                <span class="trend-neutral"></span>
+                {% else %}
+                <span class="trend-down"></span>
+                {% endif %}
+                {{ previous_result.upset_factor }}
+            </span>
+            {% endif %}
             <div class="history-rank">
-                <span class="rank-label">RANK</span>
+                <span class="rank-label">PLACED</span>
                 <span class="rank-num">{{ previous_result.rank }}</span>
             </div>
             <div class="history-details">
@@ -490,16 +521,27 @@
 
             <!-- Record (Bottom Right of Header Area) -->
             <div class="mini-stat stat-record">
-                {{ season.wins }}W - {{ season.losses }}L
+                {{ latest_result.wins }}W - {{ latest_result.losses }}L
             </div>
 
-            <!-- Rank & Trend -->
+            <!-- Rank & Upset Factor -->
             <div style="margin-top: 10px;">
                 <span class="hero-rank-large">#{{ latest_result.rank }}</span>
-                {% if latest_result.trend %}
-                <span class="hero-trend-inline"><span class="trend-up"></span>{{ latest_result.trend }}</span>
-                {% endif %}
             </div>
+            {% if latest_result.upset_factor != null %}
+            <div>
+                <span class="hero-trend-inline">
+                    {% if latest_result.upset_factor > 0 %}
+                    <span class="trend-up"></span>
+                    {% elsif latest_result.upset_factor == 0 %}
+                    <span class="trend-neutral"></span>
+                    {% else %}
+                    <span class="trend-down"></span>
+                    {% endif %}
+                    {{ latest_result.upset_factor }}
+                </span>
+            </div>
+            {% endif %}
         </div>
 
         <div class="hero-image-container">
