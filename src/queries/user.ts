@@ -1,8 +1,8 @@
 import { gql } from 'graphql-request';
 
-export const GET_USER = gql`
-  query GetUser($slug: String!) {
-    user(slug: $slug) {
+export const GET_CURRENT_USER = gql`
+  query GetCurrentUser {
+    currentUser {
       id
       slug
       images {

@@ -28,8 +28,7 @@ Copy the example environment file:
 cp .env.example .env
 ```
 Edit `.env` with your details:
-- `STARTGG_TOKEN`: Generate at [start.gg/admin/profile/developer](https://start.gg/admin/profile/developer).
-- `STARTGG_SLUG`: Your profile slug (e.g., `user/mkleo`).
+- `STARTGG_TOKEN`: Generate at [start.gg/admin/profile/developer](https://start.gg/admin/profile/developer). The token identifies your account — no separate slug needed.
 - `TRMNL_WEBHOOK_URL`: From your TRMNL dashboard (Plugin > Private Plugin > Webhook).
 
 ### 4. Local Preview

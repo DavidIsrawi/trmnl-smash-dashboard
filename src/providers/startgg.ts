@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
 import { STARTGG_API_URL } from '../constants.js';
-import { GET_USER } from '../queries/user.js';
+import { GET_CURRENT_USER } from '../queries/user.js';
 import { GET_UPCOMING_TOURNAMENTS, GET_RECENT_EVENTS } from '../queries/tournaments.js';
 import { GET_PLAYER_SETS } from '../queries/sets.js';
 import { getCharacterName, getCharacterStockIcon, getCharacterIcon } from '../characters.js';
@@ -30,22 +30,16 @@ interface ProcessedEvent {
 
 export class StartGGSmashData implements ISmashData {
   private client: GraphQLClient;
-  private slug: string;
+  private cachedUser: User | null = null;
 
-  constructor(token: string, slug: string) {
+  constructor(token: string) {
     this.client = new GraphQLClient(STARTGG_API_URL, {
       headers: { authorization: `Bearer ${token}` },
     });
-    this.slug = slug;
   }
 
   async fetchData(): Promise<SmashPluginData> {
-    const slugPart = this.slug.includes('/') ? this.slug.split('/')[1] : this.slug;
-    const userData = await this.fetchUserData(slugPart);
-
-    if (!userData) {
-      throw new Error('User not found');
-    }
+    const userData = await this.fetchCurrentUser();
 
     console.log(`User found: ${userData.player.gamerTag} (ID: ${userData.player.id})`);
 
@@ -60,9 +54,16 @@ export class StartGGSmashData implements ISmashData {
 
   // ─── API Methods ─────────────────────────────────────────────────
 
-  private async fetchUserData(slug: string): Promise<User | null> {
-    const data = await this.client.request<{ user: User }>(GET_USER, { slug });
-    return data.user;
+  private async fetchCurrentUser(): Promise<User> {
+    if (this.cachedUser) return this.cachedUser;
+
+    const data = await this.client.request<{ currentUser: User }>(GET_CURRENT_USER);
+    if (!data.currentUser) {
+      throw new Error('Could not resolve user from token. Is your STARTGG_TOKEN valid?');
+    }
+
+    this.cachedUser = data.currentUser;
+    return data.currentUser;
   }
 
   private async fetchUpcomingTournaments(userId: string): Promise<UpcomingTournament[]> {

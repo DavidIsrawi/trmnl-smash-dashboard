@@ -16,18 +16,18 @@ http.createServer((req, res) => {
 const REFRESH_INTERVAL = parseInt(process.env.REFRESH_INTERVAL_MINUTES || '60', 10) * 60 * 1000;
 
 async function runPlugin() {
-  const { STARTGG_TOKEN, STARTGG_SLUG, TRMNL_WEBHOOK_URL } = process.env;
+  const { STARTGG_TOKEN, TRMNL_WEBHOOK_URL } = process.env;
 
-  if (!STARTGG_TOKEN || !STARTGG_SLUG || !TRMNL_WEBHOOK_URL) {
+  if (!STARTGG_TOKEN || !TRMNL_WEBHOOK_URL) {
     console.error('Missing required environment variables.');
     return;
   }
 
-  const provider = new StartGGSmashData(STARTGG_TOKEN, STARTGG_SLUG);
+  const provider = new StartGGSmashData(STARTGG_TOKEN);
   const trmnl = new TrmnlClient(TRMNL_WEBHOOK_URL);
 
   try {
-    console.log(`Fetching data for user: ${STARTGG_SLUG}`);
+    console.log('Fetching data for authenticated user...');
     const payload = await provider.fetchData();
     console.log('Payload prepared:', JSON.stringify(payload, null, 2));
 
