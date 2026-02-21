@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 export const GET_UPCOMING_TOURNAMENTS = gql`
   query GetUpcoming($userId: ID!) {
     user(id: $userId) {
-      tournaments(query: { filter: { upcoming: true }, perPage: 3, sortBy: "startAt asc" }) {
+      tournaments(query: { filter: { upcoming: true }, perPage: 3 }) {
         nodes {
           id
           name

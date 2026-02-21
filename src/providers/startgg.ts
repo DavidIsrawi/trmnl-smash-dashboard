@@ -67,10 +67,15 @@ export class StartGGSmashData implements ISmashData {
   }
 
   private async fetchUpcomingTournaments(userId: string): Promise<UpcomingTournament[]> {
-    const data = await this.client.request<{
-      user: { tournaments: { nodes: UpcomingTournament[] } };
-    }>(GET_UPCOMING_TOURNAMENTS, { userId });
-    return data.user.tournaments.nodes;
+    try {
+      const data = await this.client.request<{
+        user: { tournaments: { nodes: UpcomingTournament[] } };
+      }>(GET_UPCOMING_TOURNAMENTS, { userId });
+      return data.user.tournaments.nodes;
+    } catch (e) {
+      console.error("Error fetching upcoming tournaments:", e);
+      return [];
+    }
   }
 
   private async fetchRecentEvents(userId: string): Promise<ProcessedEvent[]> {

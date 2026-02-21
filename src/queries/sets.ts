@@ -3,7 +3,7 @@ import { gql } from 'graphql-request';
 export const GET_PLAYER_SETS = gql`
   query GetPlayerSets($playerId: ID!, $page: Int!, $perPage: Int!) {
     player(id: $playerId) {
-      sets(page: $page, perPage: $perPage, sortType: RECENT) {
+      sets(page: $page, perPage: $perPage) {
         nodes {
           id
           displayScore
