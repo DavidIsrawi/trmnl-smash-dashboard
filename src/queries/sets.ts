@@ -30,6 +30,7 @@ export const GET_PLAYER_SETS = gql`
             }
           }
           games {
+            winnerId
             selections {
               selectionType
               selectionValue

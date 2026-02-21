@@ -9,17 +9,17 @@
     }
 
     .smash-dashboard {
-        width: 800px;
-        height: 480px;
+        width: 780px;
+        height: 460px;
         background-color: var(--bg-color);
         color: var(--text-color);
         font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
         overflow: hidden;
         display: grid;
-        grid-template-columns: 360px 1fr;
+        grid-template-columns: 310px 1fr;
         grid-template-rows: 1fr;
-        gap: 16px;
-        padding: 16px;
+        gap: 10px;
+        padding: 10px 13px 13px 10px;
         filter: grayscale(100%);
         box-sizing: border-box;
         position: relative;
@@ -34,14 +34,14 @@
 
     /* --- UTILS --- */
     .smash-dashboard .card {
-        border: 4px solid var(--border-color);
-        border-radius: 24px;
-        padding: 20px;
+        border: 3px solid var(--border-color);
+        border-radius: 20px;
+        padding: 16px;
         position: relative;
         display: flex;
         flex-direction: column;
         background: white;
-        box-shadow: 6px 6px 0px rgba(0,0,0,1);
+        box-shadow: 3px 3px 0px rgba(0,0,0,1);
     }
 
     .smash-dashboard .smash-label {
@@ -67,13 +67,13 @@
     .smash-dashboard .left-col {
         display: grid;
         grid-template-rows: 1fr 1fr;
-        gap: 16px;
+        gap: 10px;
     }
 
     .smash-dashboard .top-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
+        gap: 10px;
     }
 
     /* Season Stats (Top-Left) */
@@ -83,7 +83,7 @@
     }
 
     .smash-dashboard .win-rate {
-        font-size: 44px;
+        font-size: 40px;
         font-weight: 900;
         line-height: 0.9;
         margin-top: 4px;
@@ -116,7 +116,7 @@
         justify-content: space-between;
         background-color: white;
         overflow: hidden;
-        padding: 16px;
+        padding: 14px;
     }
 
     .smash-dashboard .next-logo-wrapper {
@@ -180,13 +180,13 @@
     .smash-dashboard .history-rank {
         background: black;
         color: white;
-        width: 110px;
+        width: 100px;
         height: 100%;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        border-right: 4px solid black;
+        border-right: 3px solid black;
         flex-shrink: 0;
     }
 
@@ -198,13 +198,13 @@
     }
 
     .smash-dashboard .rank-num {
-        font-size: 56px;
+        font-size: 48px;
         font-weight: 900;
         line-height: 0.9;
     }
 
     .smash-dashboard .history-details {
-        padding: 20px;
+        padding: 14px;
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -221,43 +221,42 @@
     }
 
     .smash-dashboard .history-title {
-        font-size: 26px;
+        font-size: 22px;
         font-weight: 900;
-        margin-bottom: 6px;
+        margin-bottom: 4px;
         overflow: hidden;
         line-height: 1.1;
     }
 
     .smash-dashboard .history-meta {
-        font-size: 17px;
+        font-size: 15px;
         color: #555;
         font-weight: 600;
     }
 
     .smash-dashboard .history-char {
-        margin-top: 8px;
-        font-size: 16px;
+        margin-top: 6px;
+        font-size: 14px;
         font-weight: 800;
         color: black;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
     }
 
     .smash-dashboard .history-uf {
         display: inline-flex;
         align-items: center;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 800;
         background: #f0f0f0;
-        padding: 4px 10px;
+        padding: 4px 8px;
         border-radius: 8px;
         border: 3px solid #000;
         position: absolute;
-        top: 12px;
-        right: 12px;
+        top: 10px;
+        right: 10px;
         z-index: 2;
-        box-shadow: 2px 2px 0px white;
     }
 
     /* --- RIGHT COLUMN (HERO) --- */
@@ -271,7 +270,7 @@
     }
 
     .smash-dashboard .hero-header {
-        padding: 28px;
+        padding: 20px;
         z-index: 2;
         position: relative;
         flex: 1;
@@ -290,11 +289,11 @@
     }
 
     .smash-dashboard .hero-rank-large {
-        font-size: 150px;
+        font-size: 130px;
         font-weight: 900;
         line-height: 0.8;
-        letter-spacing: -8px;
-        margin-left: -8px;
+        letter-spacing: -6px;
+        margin-left: -6px;
         position: relative;
         z-index: 2;
     }
@@ -304,28 +303,27 @@
         align-items: center;
         justify-content: center;
         background: #f0f0f0;
-        padding: 8px 14px;
-        border-radius: 10px;
+        padding: 6px 10px;
+        border-radius: 8px;
         border: 3px solid #000;
         z-index: 3;
         position: absolute;
         font-weight: 800;
-        font-size: 16px;
-        box-shadow: 2px 2px 0px white;
+        font-size: 14px;
     }
 
     .smash-dashboard .hero-trend-inline {
         display: inline-flex;
         align-items: center;
-        font-size: 24px;
+        font-size: 22px;
         font-weight: 800;
         background: #f0f0f0;
-        padding: 6px 10px;
+        padding: 5px 10px;
         border-radius: 8px;
         border: 3px solid #000;
         position: relative;
         z-index: 2;
-        margin-top: 12px;
+        margin-top: 8px;
     }
 
     .smash-dashboard .trend-up {
@@ -356,21 +354,21 @@
 
     /* Corner Stats */
     .smash-dashboard .stat-entrants {
-        top: 20px;
-        right: 20px;
+        top: 16px;
+        right: 16px;
     }
 
     .smash-dashboard .stat-record {
-        bottom: 20px;
-        right: 20px;
+        bottom: 16px;
+        right: 16px;
     }
 
     .smash-dashboard .hero-image-container {
         position: absolute;
         bottom: 0;
-        right: -40px;
-        width: 420px;
-        height: 420px;
+        right: -30px;
+        width: 380px;
+        height: 380px;
         opacity: 0.15;
         z-index: 1;
         filter: grayscale(100%) contrast(140%);
@@ -386,22 +384,25 @@
     .smash-dashboard .hero-footer {
         background: black;
         color: white;
-        padding: 24px 28px;
+        padding: 16px 20px;
         z-index: 4;
         position: relative;
     }
 
     .smash-dashboard .tourney-name {
-        font-size: 40px;
+        font-size: 32px;
         font-weight: 900;
         text-transform: uppercase;
-        letter-spacing: -2px;
-        margin-bottom: 6px;
+        letter-spacing: -1px;
+        margin-bottom: 4px;
         line-height: 1;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
 
     .smash-dashboard .tourney-meta {
-        font-size: 18px;
+        font-size: 16px;
         color: #ccc;
         font-weight: 600;
         display: flex;
@@ -441,7 +442,7 @@
                     {% for char in season.top_chars %}
                     <div class="char-row">
                         <span>{{ char.name | upcase }}</span>
-                        <span>{{ char.usage_count }} Wins</span>
+                        <span>{{ char.usage_count }} Games</span>
                     </div>
                     {% endfor %}
                 </div>

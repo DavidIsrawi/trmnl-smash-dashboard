@@ -113,8 +113,8 @@ export class StartGGSmashData implements ISmashData {
     recentSets: Set[],
   ): SmashPluginData {
     const { wins, losses, charUsage } = this.computeSeasonStats(recentSets, userData.player.id);
-    const totalSets = wins + losses;
-    const winRate = totalSets > 0 ? Math.round((wins / totalSets) * 100) : 0;
+    const totalGames = wins + losses;
+    const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
 
     const sortedChars = Object.entries(charUsage)
       .sort(([, a], [, b]) => b - a)
@@ -218,12 +218,12 @@ export class StartGGSmashData implements ISmashData {
       if (userSlotIndex === -1) continue;
 
       const userEntrantId = Number(set.slots[userSlotIndex].entrant.id);
-      const isWin = set.winnerId === userEntrantId;
-      if (isWin) wins++;
-      else losses++;
 
       if (set.games) {
         for (const game of set.games) {
+          if (game.winnerId === userEntrantId) wins++;
+          else losses++;
+
           if (!game.selections) continue;
           const selection = game.selections.find(
             (s) => s.entrant.id === set.slots[userSlotIndex].entrant.id,
@@ -257,8 +257,13 @@ export class StartGGSmashData implements ISmashData {
       if (userSlotIndex === -1) continue;
 
       const userEntrantId = Number(set.slots[userSlotIndex].entrant.id);
-      if (set.winnerId === userEntrantId) wins++;
-      else losses++;
+
+      if (set.games) {
+        for (const game of set.games) {
+          if (game.winnerId === userEntrantId) wins++;
+          else losses++;
+        }
+      }
     }
 
     return { wins, losses };
