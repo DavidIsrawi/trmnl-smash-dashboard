@@ -12,9 +12,9 @@ A lightweight integration that brings your **Super Smash Bros. Ultimate** tourna
 
 ## Features
 
-- **Season Stats:** Win rate, W/L record, and your top 2 most-played characters with stock icons.
+- **Season Stats:** Game win rate, W/L record, and your top 2 most-played characters with stock icons.
 - **Next Tournament:** Countdown (in days) to your next registered Start.gg event with tournament logo.
-- **Latest Result:** Placement, trend arrow vs. previous event, entrant count, character played, and tournament details.
+- **Latest Result:** Placement, upset factor (seed vs. result), entrant count, character played, and tournament details.
 - **Previous Result:** Placement and details from your second-most-recent event for quick comparison.
 - **Auto-Discovery:** Uses your Start.gg API token to automatically identify your account — no slugs or IDs needed.
 - **Periodic Updates:** Configurable polling interval (default: 60 min) to keep your TRMNL device up to date.
@@ -27,16 +27,25 @@ The following data is pushed to your TRMNL device via webhook:
 | Section | Key | Description |
 | :--- | :--- | :--- |
 | **Gamertag** | `user.gamerTag` | Your Start.gg player tag |
-| **Win Rate** | `season.win_rate` | Overall set win percentage |
-| **Record** | `season.wins` / `season.losses` | Total sets won and lost |
+| **Win Rate** | `season.win_rate` | Overall game win percentage |
+| **Record** | `season.wins` / `season.losses` | Total games won and lost |
 | **Top Characters** | `season.top_chars` | Your 2 most-played characters (name, usage count, stock icon URL) |
 | **Next Tournament** | `next_tournament.name` | Name of your next registered event |
 | **Days Remaining** | `next_tournament.days_remaining` | Countdown in days |
 | **Latest Rank** | `latest_result.rank` | Placement at your most recent event |
-| **Trend** | `latest_result.trend` | Placement change vs. previous event (positive = improved) |
+| **Upset Factor** | `latest_result.upset_factor` | Seed vs. placement performance (positive = outperformed seed) |
 | **Entrants** | `latest_result.entrants` | Number of entrants in the event |
 | **Character Played** | `latest_result.char_played` | Most-played character at that event |
+| **Event Name** | `latest_result.event_name` | Specific event bracket name |
+| **Tournament Name** | `latest_result.tournament_name` | Parent tournament name |
+| **Date** | `latest_result.date` | Formatted event date |
+| **Location** | `latest_result.location` | City or "Online" |
+| **Event Record** | `latest_result.wins` / `latest_result.losses` | Set wins and losses at this event |
+| **Character Icon** | `latest_result.char_image_url` | Stock icon URL for the character played |
 | **Previous Rank** | `previous_result.rank` | Placement at the event before that |
+| **Previous Details** | `previous_result.*` | Same fields as latest result (upset_factor, event_name, etc.) |
+| **Next Tournament Image** | `next_tournament.image_url` | Tournament profile image URL |
+| **User Images** | `user.images` | Array of Start.gg profile images |
 
 ## Setup Instructions
 
@@ -80,9 +89,15 @@ npm run preview
 Open `preview.html` in your browser to verify the design before deploying.
 
 ### 5. Running the Plugin
-Start the polling service:
+Build and start the polling service:
 ```bash
+npm run build
 npm start
+```
+
+For development with auto-reload:
+```bash
+npm run dev
 ```
 
 ## Deployment Options
@@ -106,16 +121,20 @@ This project includes a minimal HTTP server for health checks, making it suitabl
 
 ```
 src/
-  index.ts              # Main entry point, polling loop, and health check server
-  providers/startgg.ts  # Start.gg GraphQL client and data processing
-  queries/              # GraphQL query definitions (user, tournaments, sets)
-  trmnl.ts              # TRMNL webhook client
-  preview.ts            # Local preview generator using mock data
-  characters.ts         # Smash character ID-to-name/icon mapping
-  types.ts              # TypeScript type definitions
-  utils.ts              # Date formatting and countdown helpers
-  constants.ts          # API URL and game ID constants
-trmnl_template.liquid   # Liquid template for the TRMNL e-ink display
+  index.ts                    # Main entry point, polling loop, and health check server
+  providers/
+    startgg.ts                # Start.gg GraphQL client and data processing
+    startgg.types.ts          # Provider-specific TypeScript interfaces
+  queries/                    # GraphQL query definitions (user, tournaments, sets)
+  gql/graphql.ts              # Auto-generated GraphQL types (via codegen)
+  data/smash-characters.json  # Character data (IDs, names, icon URLs)
+  trmnl.ts                    # TRMNL webhook client
+  preview.ts                  # Local preview generator using mock data
+  characters.ts               # Smash character ID-to-name/icon mapping
+  types.ts                    # TypeScript type definitions
+  utils.ts                    # Date formatting and countdown helpers
+  constants.ts                # API URL and game ID constants
+trmnl_template.liquid         # Liquid template for the TRMNL e-ink display
 ```
 
 ## License
