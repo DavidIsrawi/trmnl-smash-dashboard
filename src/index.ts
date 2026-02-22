@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { StartGGSmashData } from "./providers/startgg.js";
 import { TrmnlClient } from "./trmnl.js";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const PORT = process.env.PORT || 8080;
 http
