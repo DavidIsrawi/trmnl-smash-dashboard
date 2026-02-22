@@ -1,5 +1,7 @@
 // ─── Start.gg API Types ──────────────────────────────────────────────
 
+import { ProcessedTournament } from "./providers/startgg.types.js";
+
 export interface Image {
   id: string;
   url: string;
@@ -171,30 +173,6 @@ export interface NextTournament {
   image_url?: string;
 }
 
-export interface LatestResult {
-  rank: number;
-  upset_factor?: number;
-  event_name: string;
-  tournament_name: string;
-  date: string;
-  location: string;
-  entrants: number;
-  wins: number;
-  losses: number;
-  char_image_url?: string;
-  char_played?: string;
-}
-
-export interface PreviousResult {
-  rank: number;
-  upset_factor?: number;
-  event_name: string;
-  tournament_name: string;
-  date: string;
-  entrants: number;
-  char_played?: string;
-}
-
 export interface SmashPluginData {
   user: {
     gamerTag: string;
@@ -202,6 +180,6 @@ export interface SmashPluginData {
   };
   season: SeasonStats;
   next_tournament?: NextTournament;
-  latest_result?: LatestResult;
-  previous_result?: PreviousResult;
+  latest_result?: ProcessedTournament;
+  previous_result?: ProcessedTournament;
 }

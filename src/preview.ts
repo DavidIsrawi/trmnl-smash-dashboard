@@ -49,7 +49,10 @@ const mockData: SmashPluginData = {
     event_name: 'Ultimate Doubles',
     tournament_name: 'Octagon #150',
     date: 'Feb 17',
+    location: 'Seattle',
     entrants: 20,
+    wins: 3,
+    losses: 1,
     char_played: 'King K. Rool'
   }
 };

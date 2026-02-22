@@ -259,6 +259,22 @@
         z-index: 2;
     }
 
+    .smash-dashboard .history-record {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #f0f0f0;
+        padding: 4px 8px;
+        border-radius: 8px;
+        border: 3px solid #000;
+        font-weight: 800;
+        font-size: 12px;
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        z-index: 2;
+    }
+
     /* --- RIGHT COLUMN (HERO) --- */
     .smash-dashboard .hero-card {
         padding: 0;
@@ -489,6 +505,9 @@
                 {{ previous_result.upset_factor }}
             </span>
             {% endif %}
+            <span class="history-record">
+                {{ previous_result.wins }}W - {{ previous_result.losses }}L
+            </span>
             <div class="history-rank">
                 <span class="rank-label">PLACED</span>
                 <span class="rank-num">{{ previous_result.rank }}</span>
