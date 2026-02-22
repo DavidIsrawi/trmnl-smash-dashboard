@@ -12,6 +12,7 @@
     "preview": "tsx src/preview.ts",
     "codegen": "graphql-codegen --config codegen.ts",
     "codegen:watch": "graphql-codegen --config codegen.ts --watch",
+    "format": "prettier --write .",
     "test": "echo `Error: no test specified` && exit 0"
   },
   "dependencies": {
@@ -25,6 +26,7 @@
     "@graphql-codegen/typescript": "^5.0.8",
     "@graphql-codegen/typescript-operations": "^5.0.8",
     "@types/node": "^20.11.24",
+    "prettier": "^3.8.1",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3"
   }

@@ -1,4 +1,4 @@
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 export const GET_PLAYER_SETS = gql`
   query GetPlayerSets($playerId: ID!, $page: Int!, $perPage: Int!) {

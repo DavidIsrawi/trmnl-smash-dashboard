@@ -1,402 +1,415 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=800, height=480, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=480, initial-scale=1.0" />
     <title>TRMNL Smash Plugin V3</title>
     <style>
-        :root {
-            --bg-color: #ffffff;
-            --text-color: #000000;
-            --border-color: #000000;
-            --gray-100: #f3f3f3;
-            --gray-200: #e5e5e5;
-            --gray-400: #a1a1a1;
-            --gray-800: #1a1a1a;
-        }
+      :root {
+        --bg-color: #ffffff;
+        --text-color: #000000;
+        --border-color: #000000;
+        --gray-100: #f3f3f3;
+        --gray-200: #e5e5e5;
+        --gray-400: #a1a1a1;
+        --gray-800: #1a1a1a;
+      }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-font-smoothing: antialiased;
-        }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        -webkit-font-smoothing: antialiased;
+      }
 
-        body {
-            width: 800px;
-            height: 480px;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            display: grid;
-            grid-template-columns: 360px 1fr;
-            grid-template-rows: 1fr;
-            gap: 20px;
-            padding: 20px;
-        }
+      body {
+        width: 800px;
+        height: 480px;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        grid-template-rows: 1fr;
+        gap: 20px;
+        padding: 20px;
+      }
 
-        /* --- UTILS --- */
-        .card {
-            border: 4px solid var(--border-color);
-            border-radius: 28px;
-            padding: 20px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            background: white;
-            box-shadow: 6px 6px 0px rgba(0,0,0,1);
-        }
+      /* --- UTILS --- */
+      .card {
+        border: 4px solid var(--border-color);
+        border-radius: 28px;
+        padding: 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        background: white;
+        box-shadow: 6px 6px 0px rgba(0, 0, 0, 1);
+      }
 
-        .label {
-            font-size: 13px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1.5px;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #555;
-        }
-        
-        .label-icon {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            background: black;
-            border-radius: 2px;
-        }
+      .label {
+        font-size: 13px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #555;
+      }
 
-        /* --- LEFT COLUMN --- */
-        .left-col {
-            display: grid;
-            grid-template-rows: 1.1fr 1fr 1fr;
-            gap: 20px;
-        }
+      .label-icon {
+        display: inline-block;
+        width: 10px;
+        height: 10px;
+        background: black;
+        border-radius: 2px;
+      }
 
-        /* Season Stats */
-        .stats-card {
-            background-color: var(--gray-100);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
+      /* --- LEFT COLUMN --- */
+      .left-col {
+        display: grid;
+        grid-template-rows: 1.1fr 1fr 1fr;
+        gap: 20px;
+      }
 
-        .season-main {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 10px;
-        }
-        
-        .win-rate {
-            font-size: 42px;
-            font-weight: 900;
-            line-height: 1;
-        }
-        
-        .record {
-            font-size: 15px;
-            font-weight: 700;
-            opacity: 0.7;
-        }
+      /* Season Stats */
+      .stats-card {
+        background-color: var(--gray-100);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
 
-        .char-breakdown {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 5px;
-        }
+      .season-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 10px;
+      }
 
-        .char-tag {
-            background: black;
-            color: white;
-            padding: 6px 10px;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-        }
+      .win-rate {
+        font-size: 42px;
+        font-weight: 900;
+        line-height: 1;
+      }
 
-        .char-tag .name {
-            font-size: 11px;
-            font-weight: 800;
-            text-transform: uppercase;
-            opacity: 0.8;
-        }
+      .record {
+        font-size: 15px;
+        font-weight: 700;
+        opacity: 0.7;
+      }
 
-        .char-tag .stat {
-            font-size: 14px;
-            font-weight: 700;
-        }
+      .char-breakdown {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 5px;
+      }
 
-        /* Next Up */
-        .next-card {
-            flex-direction: row;
-            align-items: center;
-            padding: 15px 20px;
-            gap: 15px;
-        }
-        
-        .next-logo-container {
-            width: 70px;
-            height: 70px;
-            border: 3px solid black;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            overflow: hidden;
-            background: #fff;
-        }
+      .char-tag {
+        background: black;
+        color: white;
+        padding: 6px 10px;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .next-logo-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+      .char-tag .name {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        opacity: 0.8;
+      }
 
-        .next-info {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+      .char-tag .stat {
+        font-size: 14px;
+        font-weight: 700;
+      }
 
-        .next-name {
-            font-size: 20px;
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 4px;
-        }
+      /* Next Up */
+      .next-card {
+        flex-direction: row;
+        align-items: center;
+        padding: 15px 20px;
+        gap: 15px;
+      }
 
-        .next-countdown {
-            font-size: 14px;
-            font-weight: 700;
-            color: #666;
-            text-transform: uppercase;
-        }
+      .next-logo-container {
+        width: 70px;
+        height: 70px;
+        border: 3px solid black;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+        background: #fff;
+      }
 
-        /* Previous (Second Last) */
-        .prev-card {
-            background-color: white;
-            justify-content: center;
-        }
+      .next-logo-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
 
-        .prev-content {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+      .next-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
 
-        .prev-placement {
-            font-size: 38px;
-            font-weight: 900;
-            border-right: 3px solid #eee;
-            padding-right: 15px;
-            line-height: 1;
-        }
+      .next-name {
+        font-size: 20px;
+        font-weight: 900;
+        line-height: 1.1;
+        margin-bottom: 4px;
+      }
 
-        .prev-details {
-            display: flex;
-            flex-direction: column;
-        }
+      .next-countdown {
+        font-size: 14px;
+        font-weight: 700;
+        color: #666;
+        text-transform: uppercase;
+      }
 
-        .prev-title {
-            font-size: 16px;
-            font-weight: 800;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 180px;
-        }
+      /* Previous (Second Last) */
+      .prev-card {
+        background-color: white;
+        justify-content: center;
+      }
 
-        .prev-meta {
-            font-size: 12px;
-            font-weight: 600;
-            color: #888;
-        }
+      .prev-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+      }
 
-        /* --- RIGHT COLUMN (HERO) --- */
-        .hero-card {
-            padding: 0;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            background: #fff;
-        }
+      .prev-placement {
+        font-size: 38px;
+        font-weight: 900;
+        border-right: 3px solid #eee;
+        padding-right: 15px;
+        line-height: 1;
+      }
 
-        .hero-header {
-            padding: 30px;
-            z-index: 2;
-        }
+      .prev-details {
+        display: flex;
+        flex-direction: column;
+      }
 
-        .latest-label {
-            background: black;
-            color: white;
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: 800;
-            text-transform: uppercase;
-            margin-bottom: 12px;
-        }
+      .prev-title {
+        font-size: 16px;
+        font-weight: 800;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 180px;
+      }
 
-        .hero-placement {
-            font-size: 120px;
-            font-weight: 900;
-            line-height: 0.8;
-            letter-spacing: -5px;
-            margin-bottom: 10px;
-        }
+      .prev-meta {
+        font-size: 12px;
+        font-weight: 600;
+        color: #888;
+      }
 
-        .hero-stats {
-            display: flex;
-            gap: 20px;
-            font-size: 18px;
-            font-weight: 700;
-            color: #444;
-        }
+      /* --- RIGHT COLUMN (HERO) --- */
+      .hero-card {
+        padding: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        background: #fff;
+      }
 
-        .stat-item span {
-            color: black;
-            font-weight: 900;
-        }
+      .hero-header {
+        padding: 30px;
+        z-index: 2;
+      }
 
-        .hero-image-container {
-            position: absolute;
-            bottom: 40px;
-            right: -30px;
-            width: 420px;
-            height: 420px;
-            z-index: 1;
-            filter: grayscale(100%) contrast(1.1);
-            pointer-events: none;
-        }
-        
-        .hero-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
+      .latest-label {
+        background: black;
+        color: white;
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        margin-bottom: 12px;
+      }
 
-        .hero-footer {
-            margin-top: auto;
-            background: black;
-            color: white;
-            padding: 24px 30px;
-            z-index: 2;
-            position: relative;
-        }
+      .hero-placement {
+        font-size: 120px;
+        font-weight: 900;
+        line-height: 0.8;
+        letter-spacing: -5px;
+        margin-bottom: 10px;
+      }
 
-        .tourney-name-hero {
-            font-size: 36px;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: -1px;
-            margin-bottom: 4px;
-            line-height: 1;
-        }
+      .hero-stats {
+        display: flex;
+        gap: 20px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #444;
+      }
 
-        .tourney-meta-hero {
-            font-size: 18px;
-            color: #999;
-            font-weight: 600;
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        /* Dithering/Texture overlay */
-        .texture-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: radial-gradient(#000 1.5px, transparent 0);
-            background-size: 5px 5px;
-            opacity: 0.04;
-            pointer-events: none;
-            z-index: 10;
-        }
+      .stat-item span {
+        color: black;
+        font-weight: 900;
+      }
 
+      .hero-image-container {
+        position: absolute;
+        bottom: 40px;
+        right: -30px;
+        width: 420px;
+        height: 420px;
+        z-index: 1;
+        filter: grayscale(100%) contrast(1.1);
+        pointer-events: none;
+      }
+
+      .hero-image {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+      }
+
+      .hero-footer {
+        margin-top: auto;
+        background: black;
+        color: white;
+        padding: 24px 30px;
+        z-index: 2;
+        position: relative;
+      }
+
+      .tourney-name-hero {
+        font-size: 36px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: -1px;
+        margin-bottom: 4px;
+        line-height: 1;
+      }
+
+      .tourney-meta-hero {
+        font-size: 18px;
+        color: #999;
+        font-weight: 600;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* Dithering/Texture overlay */
+      .texture-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(#000 1.5px, transparent 0);
+        background-size: 5px 5px;
+        opacity: 0.04;
+        pointer-events: none;
+        z-index: 10;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="texture-overlay"></div>
 
     <!-- Left Column -->
     <div class="left-col">
-        <!-- Season Stats -->
-        <div class="card stats-card">
-            <div class="label"><span class="label-icon"></span>Season Stats</div>
-            <div class="season-main">
-                <div class="win-rate">58%</div>
-                <div class="record">107W - 76L</div>
-            </div>
-            <div class="char-breakdown">
-                <div class="char-tag">
-                    <span class="name">K. Rool</span>
-                    <span class="stat">64W - 32L</span>
-                </div>
-                <div class="char-tag">
-                    <span class="name">R.O.B.</span>
-                    <span class="stat">43W - 44L</span>
-                </div>
-            </div>
+      <!-- Season Stats -->
+      <div class="card stats-card">
+        <div class="label"><span class="label-icon"></span>Season Stats</div>
+        <div class="season-main">
+          <div class="win-rate">58%</div>
+          <div class="record">107W - 76L</div>
         </div>
+        <div class="char-breakdown">
+          <div class="char-tag">
+            <span class="name">K. Rool</span>
+            <span class="stat">64W - 32L</span>
+          </div>
+          <div class="char-tag">
+            <span class="name">R.O.B.</span>
+            <span class="stat">43W - 44L</span>
+          </div>
+        </div>
+      </div>
 
-        <!-- Next Up -->
-        <div class="card next-card">
-            <div class="next-logo-container">
-                <!-- Placeholder for Tournament Logo -->
-                <img src="https://images.start.gg/images/tournament/613437/tournament-banner-869858643875-1701384000.png" alt="Logo">
-            </div>
-            <div class="next-info">
-                <div class="label" style="margin-bottom: 4px;"><span class="label-icon"></span>Next Up</div>
-                <div class="next-name">The Octagon 3</div>
-                <div class="next-countdown">In 3 Days</div>
-            </div>
+      <!-- Next Up -->
+      <div class="card next-card">
+        <div class="next-logo-container">
+          <!-- Placeholder for Tournament Logo -->
+          <img
+            src="https://images.start.gg/images/tournament/613437/tournament-banner-869858643875-1701384000.png"
+            alt="Logo"
+          />
         </div>
+        <div class="next-info">
+          <div class="label" style="margin-bottom: 4px">
+            <span class="label-icon"></span>Next Up
+          </div>
+          <div class="next-name">The Octagon 3</div>
+          <div class="next-countdown">In 3 Days</div>
+        </div>
+      </div>
 
-        <!-- Previous (Plan B: Second Last Result) -->
-        <div class="card prev-card">
-            <div class="label"><span class="label-icon"></span>Previous Result</div>
-            <div class="prev-content">
-                <div class="prev-placement">#13</div>
-                <div class="prev-details">
-                    <div class="prev-title">Supernova 2026</div>
-                    <div class="prev-meta">Aug 08 • 1,024 Entrants</div>
-                    <div class="prev-meta" style="color: black; font-weight: 800; margin-top: 2px;">Played: R.O.B.</div>
-                </div>
+      <!-- Previous (Plan B: Second Last Result) -->
+      <div class="card prev-card">
+        <div class="label"><span class="label-icon"></span>Previous Result</div>
+        <div class="prev-content">
+          <div class="prev-placement">#13</div>
+          <div class="prev-details">
+            <div class="prev-title">Supernova 2026</div>
+            <div class="prev-meta">Aug 08 • 1,024 Entrants</div>
+            <div
+              class="prev-meta"
+              style="color: black; font-weight: 800; margin-top: 2px"
+            >
+              Played: R.O.B.
             </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Right Column (Hero - Latest Result) -->
     <div class="card hero-card">
-        <div class="hero-header">
-            <div class="latest-label">Latest Performance</div>
-            <div class="hero-placement">#7</div>
-            <div class="hero-stats">
-                <div class="stat-item">Wins: <span>5</span></div>
-                <div class="stat-item">Losses: <span>2</span></div>
-                <div class="stat-item">Entrants: <span>1.2k</span></div>
-            </div>
+      <div class="hero-header">
+        <div class="latest-label">Latest Performance</div>
+        <div class="hero-placement">#7</div>
+        <div class="hero-stats">
+          <div class="stat-item">Wins: <span>5</span></div>
+          <div class="stat-item">Losses: <span>2</span></div>
+          <div class="stat-item">Entrants: <span>1.2k</span></div>
         </div>
-        
-        <div class="hero-image-container">
-            <img src="https://www.smashbros.com/assets_v2/img/fighter/king_k_rool/main.png" alt="King K Rool" class="hero-image">
-        </div>
+      </div>
 
-        <div class="hero-footer">
-            <div class="tourney-name-hero">Riptide 2026</div>
-            <div class="tourney-meta-hero">
-                <span>Oct 12-14</span>
-                <span>Sandusky, OH</span>
-            </div>
+      <div class="hero-image-container">
+        <img
+          src="https://www.smashbros.com/assets_v2/img/fighter/king_k_rool/main.png"
+          alt="King K Rool"
+          class="hero-image"
+        />
+      </div>
+
+      <div class="hero-footer">
+        <div class="tourney-name-hero">Riptide 2026</div>
+        <div class="tourney-meta-hero">
+          <span>Oct 12-14</span>
+          <span>Sandusky, OH</span>
         </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

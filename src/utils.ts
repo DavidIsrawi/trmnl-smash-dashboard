@@ -1,6 +1,6 @@
 export function formatDate(timestamp: number): string {
   const date = new Date(timestamp * 1000); // Start.gg uses unix timestamp (seconds)
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
 export function calculateDaysRemaining(timestamp: number): number {

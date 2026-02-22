@@ -24,7 +24,12 @@ import type {
   RecentEventNode,
   Set,
 } from "../types.js";
-import { CharacterInfo, EventSetRecord, ProcessedEvent, ProcessedTournament } from "./startgg.types.js";
+import {
+  CharacterInfo,
+  EventSetRecord,
+  ProcessedEvent,
+  ProcessedTournament,
+} from "./startgg.types.js";
 
 export class StartGGSmashData implements ISmashData {
   private client: GraphQLClient;

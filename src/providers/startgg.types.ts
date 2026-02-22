@@ -31,7 +31,7 @@ export interface CharacterInfo {
   name: string;
   icon?: string;
 }
-    
+
 export interface EventSetRecord {
   wins: number;
   losses: number;

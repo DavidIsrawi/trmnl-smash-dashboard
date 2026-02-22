@@ -1,441 +1,462 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=800, height=480">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=800, height=480" />
     <title>TRMNL Smash Plugin – v2</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        body {
-            width: 800px;
-            height: 480px;
-            font-family: 'Inter', -apple-system, 'Helvetica Neue', Arial, sans-serif;
-            background: #fff;
-            color: #000;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
+      body {
+        width: 800px;
+        height: 480px;
+        font-family:
+          "Inter",
+          -apple-system,
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+        background: #fff;
+        color: #000;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
 
-        /* ============================
+      /* ============================
            LAYOUT GRID
            ============================ */
-        .screen {
-            width: 800px;
-            height: 480px;
-            display: grid;
-            grid-template-columns: 360px 1fr;
-            gap: 14px;
-            padding: 16px;
-        }
+      .screen {
+        width: 800px;
+        height: 480px;
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 14px;
+        padding: 16px;
+      }
 
-        .left-col {
-            display: grid;
-            grid-template-rows: 186px 1fr;
-            gap: 12px;
-        }
+      .left-col {
+        display: grid;
+        grid-template-rows: 186px 1fr;
+        gap: 12px;
+      }
 
-        .top-row {
-            display: grid;
-            grid-template-columns: 1fr 126px;
-            gap: 12px;
-        }
+      .top-row {
+        display: grid;
+        grid-template-columns: 1fr 126px;
+        gap: 12px;
+      }
 
-        /* ============================
+      /* ============================
            CARD BASE
            ============================ */
-        .card {
-            border: 2.5px solid #000;
-            border-radius: 16px;
-            overflow: hidden;
-            position: relative;
-            background: #fff;
-        }
+      .card {
+        border: 2.5px solid #000;
+        border-radius: 16px;
+        overflow: hidden;
+        position: relative;
+        background: #fff;
+      }
 
-        /* ============================
+      /* ============================
            SECTION LABELS
            ============================ */
-        .section-label {
-            font-size: 9.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2.5px;
-            color: #999;
-        }
+      .section-label {
+        font-size: 9.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2.5px;
+        color: #999;
+      }
 
-        /* ============================
+      /* ============================
            STATS CARD (top-left)
            ============================ */
-        .stats-card {
-            padding: 12px 14px 10px;
-            display: flex;
-            flex-direction: column;
-        }
+      .stats-card {
+        padding: 12px 14px 10px;
+        display: flex;
+        flex-direction: column;
+      }
 
-        .char-list {
-            margin: 6px 0 0;
-        }
+      .char-list {
+        margin: 6px 0 0;
+      }
 
-        .char-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #111;
-            color: #fff;
-            padding: 4px 10px;
-            border-radius: 6px;
-            margin-bottom: 3px;
-        }
+      .char-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #111;
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 6px;
+        margin-bottom: 3px;
+      }
 
-        .char-name {
-            font-size: 11.5px;
-            font-weight: 700;
-            letter-spacing: -0.2px;
-        }
+      .char-name {
+        font-size: 11.5px;
+        font-weight: 700;
+        letter-spacing: -0.2px;
+      }
 
-        .char-games {
-            font-size: 10.5px;
-            font-weight: 500;
-            opacity: 0.6;
-        }
+      .char-games {
+        font-size: 10.5px;
+        font-weight: 500;
+        opacity: 0.6;
+      }
 
-        .record {
-            margin-top: auto;
-            padding-top: 4px;
-        }
+      .record {
+        margin-top: auto;
+        padding-top: 4px;
+      }
 
-        .record-text {
-            font-size: 12.5px;
-            font-weight: 700;
-            letter-spacing: -0.3px;
-        }
+      .record-text {
+        font-size: 12.5px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+      }
 
-        .record-pct {
-            font-weight: 600;
-            color: #666;
-        }
+      .record-pct {
+        font-weight: 600;
+        color: #666;
+      }
 
-        .win-bar {
-            width: 100%;
-            height: 5px;
-            background: #d0d0d0;
-            border-radius: 3px;
-            margin: 5px 0 6px;
-            overflow: hidden;
-        }
+      .win-bar {
+        width: 100%;
+        height: 5px;
+        background: #d0d0d0;
+        border-radius: 3px;
+        margin: 5px 0 6px;
+        overflow: hidden;
+      }
 
-        .win-bar-fill {
-            height: 100%;
-            background: #000;
-            border-radius: 3px;
-        }
+      .win-bar-fill {
+        height: 100%;
+        background: #000;
+        border-radius: 3px;
+      }
 
-        .motivation-badge {
-            display: inline-block;
-            background: #000;
-            color: #fff;
-            padding: 3px 11px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
+      .motivation-badge {
+        display: inline-block;
+        background: #000;
+        color: #fff;
+        padding: 3px 11px;
+        border-radius: 20px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
 
-        /* ============================
+      /* ============================
            NEXT TOURNAMENT CARD (top-right)
            ============================ */
-        .next-card {
-            padding: 12px 10px 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
+      .next-card {
+        padding: 12px 10px 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
 
-        .next-date {
-            font-size: 11px;
-            font-weight: 600;
-            color: #666;
-            margin-top: 6px;
-        }
+      .next-date {
+        font-size: 11px;
+        font-weight: 600;
+        color: #666;
+        margin-top: 6px;
+      }
 
-        .next-logo-area {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 6px 0;
-        }
+      .next-logo-area {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 0;
+      }
 
-        .next-logo {
-            width: 54px;
-            height: 54px;
-            border: 2.5px solid #ddd;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 8px;
-            font-weight: 700;
-            color: #bbb;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+      .next-logo {
+        width: 54px;
+        height: 54px;
+        border: 2.5px solid #ddd;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 8px;
+        font-weight: 700;
+        color: #bbb;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-        .next-tourney-name {
-            font-size: 13px;
-            font-weight: 800;
-            line-height: 1.15;
-            letter-spacing: -0.3px;
-        }
+      .next-tourney-name {
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1.15;
+        letter-spacing: -0.3px;
+      }
 
-        /* ============================
+      /* ============================
            TOURNAMENT CARD BASE
            ============================ */
-        .tourney-card {
-            display: flex;
-            flex-direction: column;
-        }
+      .tourney-card {
+        display: flex;
+        flex-direction: column;
+      }
 
-        /* -- Placing & stats row -- */
-        .tourney-stats {
-            padding: 10px 14px 0;
-        }
+      /* -- Placing & stats row -- */
+      .tourney-stats {
+        padding: 10px 14px 0;
+      }
 
-        .placing-row {
-            display: flex;
-            align-items: flex-start;
-        }
+      .placing-row {
+        display: flex;
+        align-items: flex-start;
+      }
 
-        .placing {
-            font-weight: 900;
-            line-height: 0.85;
-            letter-spacing: -3px;
-        }
+      .placing {
+        font-weight: 900;
+        line-height: 0.85;
+        letter-spacing: -3px;
+      }
 
-        .placing-hero {
-            font-size: 86px;
-        }
+      .placing-hero {
+        font-size: 86px;
+      }
 
-        .placing-prev {
-            font-size: 52px;
-            letter-spacing: -2px;
-        }
+      .placing-prev {
+        font-size: 52px;
+        letter-spacing: -2px;
+      }
 
-        /* -- Upset factor -- */
-        .upset {
-            display: inline-flex;
-            align-items: center;
-            gap: 2px;
-            font-weight: 800;
-            margin-left: 4px;
-            position: relative;
-        }
+      /* -- Upset factor -- */
+      .upset {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        font-weight: 800;
+        margin-left: 4px;
+        position: relative;
+      }
 
-        .upset-hero {
-            font-size: 18px;
-            top: 6px;
-        }
+      .upset-hero {
+        font-size: 18px;
+        top: 6px;
+      }
 
-        .upset-prev {
-            font-size: 14px;
-            top: 4px;
-        }
+      .upset-prev {
+        font-size: 14px;
+        top: 4px;
+      }
 
-        .triangle {
-            display: inline-block;
-            width: 0;
-            height: 0;
-            border-left: 5px solid transparent;
-            border-right: 5px solid transparent;
-        }
+      .triangle {
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-left: 5px solid transparent;
+        border-right: 5px solid transparent;
+      }
 
-        .triangle-up {
-            border-bottom: 9px solid #000;
-        }
+      .triangle-up {
+        border-bottom: 9px solid #000;
+      }
 
-        .triangle-down {
-            border-top: 9px solid #888;
-        }
+      .triangle-down {
+        border-top: 9px solid #888;
+      }
 
-        /* -- Entrants -- */
-        .entrants {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            padding: 3px 14px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #555;
-        }
+      /* -- Entrants -- */
+      .entrants {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        color: #555;
+      }
 
-        .entrants svg {
-            width: 14px;
-            height: 14px;
-            fill: #888;
-        }
+      .entrants svg {
+        width: 14px;
+        height: 14px;
+        fill: #888;
+      }
 
-        /* -- Character image area -- */
-        .char-area {
-            flex: 1;
-            position: relative;
-            min-height: 0;
-        }
+      /* -- Character image area -- */
+      .char-area {
+        flex: 1;
+        position: relative;
+        min-height: 0;
+      }
 
-        .char-area img {
-            position: absolute;
-            object-fit: contain;
-            filter: grayscale(100%) contrast(1.25);
-        }
+      .char-area img {
+        position: absolute;
+        object-fit: contain;
+        filter: grayscale(100%) contrast(1.25);
+      }
 
-        .char-hero img {
-            right: -10px;
-            bottom: -6px;
-            height: 118%;
-            max-width: 105%;
-        }
+      .char-hero img {
+        right: -10px;
+        bottom: -6px;
+        height: 118%;
+        max-width: 105%;
+      }
 
-        .char-prev img {
-            left: 50%;
-            transform: translateX(-38%);
-            bottom: -6px;
-            height: 135%;
-            max-width: 105%;
-        }
+      .char-prev img {
+        left: 50%;
+        transform: translateX(-38%);
+        bottom: -6px;
+        height: 135%;
+        max-width: 105%;
+      }
 
-        /* -- Tournament footer bar -- */
-        .tourney-footer {
-            background: #000;
-            color: #fff;
-            padding: 10px 14px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 2;
-        }
+      /* -- Tournament footer bar -- */
+      .tourney-footer {
+        background: #000;
+        color: #fff;
+        padding: 10px 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        z-index: 2;
+      }
 
-        .tourney-name {
-            font-weight: 800;
-            letter-spacing: -0.5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+      .tourney-name {
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-        .tourney-name-hero {
-            font-size: 20px;
-        }
+      .tourney-name-hero {
+        font-size: 20px;
+      }
 
-        .tourney-name-prev {
-            font-size: 15px;
-        }
+      .tourney-name-prev {
+        font-size: 15px;
+      }
 
-        .tourney-date {
-            font-size: 11px;
-            font-weight: 500;
-            color: #888;
-            white-space: nowrap;
-            margin-left: 12px;
-        }
+      .tourney-date {
+        font-size: 11px;
+        font-weight: 500;
+        color: #888;
+        white-space: nowrap;
+        margin-left: 12px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="screen">
+      <!-- ===== LEFT COLUMN ===== -->
+      <div class="left-col">
+        <!-- Top row: Stats + Next -->
+        <div class="top-row">
+          <!-- Stats Card -->
+          <div class="card stats-card">
+            <div class="section-label">Last 3 Months</div>
 
-        <!-- ===== LEFT COLUMN ===== -->
-        <div class="left-col">
-
-            <!-- Top row: Stats + Next -->
-            <div class="top-row">
-
-                <!-- Stats Card -->
-                <div class="card stats-card">
-                    <div class="section-label">Last 3 Months</div>
-
-                    <div class="char-list">
-                        <div class="char-row">
-                            <span class="char-name">King K Rool</span>
-                            <span class="char-games">100 games</span>
-                        </div>
-                        <div class="char-row">
-                            <span class="char-name">Mario</span>
-                            <span class="char-games">13 games</span>
-                        </div>
-                    </div>
-
-                    <div class="record">
-                        <div class="record-text">
-                            107W – 76L <span class="record-pct">(58%)</span>
-                        </div>
-                        <div class="win-bar">
-                            <div class="win-bar-fill" style="width: 58%"></div>
-                        </div>
-                        <span class="motivation-badge">Keep Working!</span>
-                    </div>
-                </div>
-
-                <!-- Next Tournament Card -->
-                <div class="card next-card">
-                    <div class="section-label">Next</div>
-                    <div class="next-date">Feb 28</div>
-                    <div class="next-logo-area">
-                        <div class="next-logo">logo</div>
-                    </div>
-                    <div class="next-tourney-name">The Octagon</div>
-                </div>
+            <div class="char-list">
+              <div class="char-row">
+                <span class="char-name">King K Rool</span>
+                <span class="char-games">100 games</span>
+              </div>
+              <div class="char-row">
+                <span class="char-name">Mario</span>
+                <span class="char-games">13 games</span>
+              </div>
             </div>
 
-            <!-- Previous Tournament Card -->
-            <div class="card tourney-card">
-                <div class="tourney-stats">
-                    <div class="placing-row">
-                        <span class="placing placing-prev">#8</span>
-                        <span class="upset upset-prev">
-                            <span class="triangle triangle-up"></span>1
-                        </span>
-                    </div>
-                </div>
-                <div class="entrants">
-                    <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                    <span>27 entrants</span>
-                </div>
-                <div class="char-area char-prev">
-                    <img src="https://www.smashbros.com/assets_v2/img/fighter/robot/main.png" alt="R.O.B.">
-                </div>
-                <div class="tourney-footer">
-                    <span class="tourney-name tourney-name-prev">Locals #88</span>
-                    <span class="tourney-date">Jan 11</span>
-                </div>
+            <div class="record">
+              <div class="record-text">
+                107W – 76L <span class="record-pct">(58%)</span>
+              </div>
+              <div class="win-bar">
+                <div class="win-bar-fill" style="width: 58%"></div>
+              </div>
+              <span class="motivation-badge">Keep Working!</span>
             </div>
+          </div>
 
+          <!-- Next Tournament Card -->
+          <div class="card next-card">
+            <div class="section-label">Next</div>
+            <div class="next-date">Feb 28</div>
+            <div class="next-logo-area">
+              <div class="next-logo">logo</div>
+            </div>
+            <div class="next-tourney-name">The Octagon</div>
+          </div>
         </div>
 
-        <!-- ===== RIGHT COLUMN: HERO CARD ===== -->
+        <!-- Previous Tournament Card -->
         <div class="card tourney-card">
-            <div class="tourney-stats">
-                <div class="placing-row">
-                    <span class="placing placing-hero">#8</span>
-                    <span class="upset upset-hero">
-                        <span class="triangle triangle-up"></span>1
-                    </span>
-                </div>
+          <div class="tourney-stats">
+            <div class="placing-row">
+              <span class="placing placing-prev">#8</span>
+              <span class="upset upset-prev">
+                <span class="triangle triangle-up"></span>1
+              </span>
             </div>
-            <div class="entrants">
-                <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
-                <span>44 entrants</span>
-            </div>
-            <div class="char-area char-hero">
-                <img src="https://www.smashbros.com/assets_v2/img/fighter/king_k_rool/main.png" alt="King K. Rool">
-            </div>
-            <div class="tourney-footer">
-                <span class="tourney-name tourney-name-hero">The Weekly #142</span>
-                <span class="tourney-date">Jan 18</span>
-            </div>
+          </div>
+          <div class="entrants">
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+              />
+            </svg>
+            <span>27 entrants</span>
+          </div>
+          <div class="char-area char-prev">
+            <img
+              src="https://www.smashbros.com/assets_v2/img/fighter/robot/main.png"
+              alt="R.O.B."
+            />
+          </div>
+          <div class="tourney-footer">
+            <span class="tourney-name tourney-name-prev">Locals #88</span>
+            <span class="tourney-date">Jan 11</span>
+          </div>
         </div>
+      </div>
 
+      <!-- ===== RIGHT COLUMN: HERO CARD ===== -->
+      <div class="card tourney-card">
+        <div class="tourney-stats">
+          <div class="placing-row">
+            <span class="placing placing-hero">#8</span>
+            <span class="upset upset-hero">
+              <span class="triangle triangle-up"></span>1
+            </span>
+          </div>
+        </div>
+        <div class="entrants">
+          <svg viewBox="0 0 24 24">
+            <path
+              d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"
+            />
+          </svg>
+          <span>44 entrants</span>
+        </div>
+        <div class="char-area char-hero">
+          <img
+            src="https://www.smashbros.com/assets_v2/img/fighter/king_k_rool/main.png"
+            alt="King K. Rool"
+          />
+        </div>
+        <div class="tourney-footer">
+          <span class="tourney-name tourney-name-hero">The Weekly #142</span>
+          <span class="tourney-date">Jan 18</span>
+        </div>
+      </div>
     </div>
-</body>
+  </body>
 </html>

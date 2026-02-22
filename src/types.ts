@@ -122,7 +122,7 @@ export interface RecentEventNode {
 
 export interface CharacterImage {
   id: number;
-  type: 'icon' | 'stockIcon';
+  type: "icon" | "stockIcon";
   url: string;
 }
 

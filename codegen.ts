@@ -1,18 +1,18 @@
-import 'dotenv/config';
-import type { CodegenConfig } from '@graphql-codegen/cli';
+import "dotenv/config";
+import type { CodegenConfig } from "@graphql-codegen/cli";
 
 const config: CodegenConfig = {
   schema: {
-    'https://api.smash.gg/gql/alpha': {
+    "https://api.smash.gg/gql/alpha": {
       headers: {
         Authorization: `Bearer ${process.env.STARTGG_TOKEN}`,
       },
     },
   },
-  documents: 'src/queries/**/*.ts',
+  documents: "src/queries/**/*.ts",
   generates: {
-    'src/gql/graphql.ts': {
-      plugins: ['typescript', 'typescript-operations'],
+    "src/gql/graphql.ts": {
+      plugins: ["typescript", "typescript-operations"],
     },
   },
 };
