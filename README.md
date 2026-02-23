@@ -20,6 +20,10 @@ A lightweight integration that brings your **Super Smash Bros. Ultimate** tourna
 - **Periodic Updates:** Configurable polling interval (default: 60 min) to keep your TRMNL device up to date.
 - **E-ink Optimized:** High-contrast, grayscale layout designed for the TRMNL 800x480 display.
 
+## Data Flow
+
+![Data Flow Diagram](/flowchartFeb.png)
+
 ## Data Points
 
 The following data is pushed to your TRMNL device via webhook:
