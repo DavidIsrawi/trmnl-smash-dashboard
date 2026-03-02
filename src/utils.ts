@@ -11,16 +11,29 @@ export function calculateDaysRemaining(timestamp: number): number {
 }
 
 /**
- * Calculate the Upset Factor (UF) for a tournament result.
- * UF measures how many bracket "rounds" a player over- or under-performed
- * relative to their seed. A positive value means they placed better than
- * expected (upset); negative means they underperformed.
+ * Map a seed or placement to its double-elimination bracket tier.
  *
- * Uses bracket round tiers: seed/placement 1 → round 0, 2 → round 1,
- * 3-4 → round 2, 5-8 → round 3, etc.
+ * Double-elimination tiers differ from single-elimination because placements
+ * 1–4 are each distinct, and after that tiers come in pairs that double every
+ * two rounds (reflecting the losers bracket structure):
+ *   1→0, 2→1, 3→2, 4→3, 5-6→4, 7-8→5, 9-12→6, 13-16→7, 17-24→8, 25-32→9, ...
+ */
+export function getDoubleElimRound(n: number): number {
+  if (n <= 1) return 0;
+  const k = Math.ceil(Math.log2(n));
+  const mid = 3 * Math.pow(2, k - 2);
+  return 2 * (k - 1) + (n > mid ? 1 : 0);
+}
+
+/**
+ * Calculate the Upset Factor (UF) for a tournament result.
+ * UF measures how many double-elimination bracket "rounds" a player over- or
+ * under-performed relative to their seed. A positive value means they placed
+ * better than expected (upset); negative means they underperformed.
+ *
+ * Uses the industry-standard double-elimination tier mapping as defined by
+ * PGStats and used by SmashExplorer and upsets.gg.
  */
 export function calculateUpsetFactor(seed: number, placement: number): number {
-  const seedRound = Math.floor(Math.log2(seed));
-  const placementRound = Math.floor(Math.log2(placement));
-  return seedRound - placementRound;
+  return getDoubleElimRound(seed) - getDoubleElimRound(placement);
 }
