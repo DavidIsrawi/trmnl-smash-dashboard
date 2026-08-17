@@ -51,11 +51,9 @@ export interface Standing {
 export interface SetSlot {
   entrant: {
     id: string;
-    name: string;
     participants: {
       player: {
         id: string;
-        gamerTag: string;
       };
     }[];
   };
@@ -66,11 +64,6 @@ export interface GameSelection {
   selectionValue: number;
   entrant: {
     id: string;
-    participants: {
-      player: {
-        id: string;
-      };
-    }[];
   };
 }
 
@@ -82,12 +75,10 @@ export interface Game {
 
 export interface Set {
   id: string;
-  displayScore: string;
   winnerId: number;
-  totalGames: number;
   slots: SetSlot[];
   games: Game[];
-  event: Event;
+  event: Pick<Event, "id">;
   completedAt: number;
 }
 

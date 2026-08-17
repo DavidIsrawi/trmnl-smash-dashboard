@@ -1,5 +1,10 @@
 import { GraphQLClient } from "graphql-request";
-import { STARTGG_API_URL } from "../constants.js";
+import {
+  STARTGG_API_URL,
+  RECENT_SETS_LIMIT,
+  SETS_PER_REQUEST,
+  CHARACTER_SELECTION_TYPE,
+} from "../constants.js";
 import { GET_CURRENT_USER } from "../queries/user.js";
 import {
   GET_UPCOMING_TOURNAMENTS,
@@ -23,6 +28,8 @@ import type {
   UpcomingTournament,
   RecentEventNode,
   Set,
+  Game,
+  GameSelection,
 } from "../types.js";
 import {
   CharacterInfo,
@@ -51,7 +58,7 @@ export class StartGGSmashData implements ISmashData {
     const [upcoming, recentEvents, recentSets] = await Promise.all([
       this.fetchUpcomingTournaments(userData.id),
       this.fetchRecentEvents(userData.id),
-      this.fetchPlayerSets(userData.player.id, 1, 25),
+      this.fetchPlayerSets(userData.player.id, RECENT_SETS_LIMIT),
     ]);
 
     return this.buildPayload(userData, upcoming, recentEvents, recentSets);
@@ -108,13 +115,24 @@ export class StartGGSmashData implements ISmashData {
 
   private async fetchPlayerSets(
     playerId: string,
-    page: number,
-    perPage: number,
+    limit: number,
   ): Promise<Set[]> {
-    const data = await this.client.request<{
-      player: { sets: { nodes: Set[] } };
-    }>(GET_PLAYER_SETS, { playerId, page, perPage });
-    return data.player.sets.nodes;
+    const sets: Set[] = [];
+
+    for (let page = 1; sets.length < limit; page++) {
+      const perPage = Math.min(SETS_PER_REQUEST, limit - sets.length);
+
+      const data = await this.client.request<{
+        player: { sets: { nodes: Set[] } | null } | null;
+      }>(GET_PLAYER_SETS, { playerId, page, perPage });
+
+      const nodes = data.player?.sets?.nodes ?? [];
+      sets.push(...nodes);
+
+      if (nodes.length < perPage) break;
+    }
+
+    return sets;
   }
 
   // ─── Processing Logic ────────────────────────────────────────────
@@ -235,27 +253,17 @@ export class StartGGSmashData implements ISmashData {
     const charUsage: Record<string, number> = {};
 
     for (const set of recentSets) {
-      const userSlotIndex = set.slots.findIndex((s) =>
-        s.entrant.participants.some((p) => p.player.id === playerId),
-      );
+      const userEntrantId = this.findUserEntrantId(set, playerId);
+      if (!userEntrantId) continue;
 
-      if (userSlotIndex === -1) continue;
+      for (const game of set.games ?? []) {
+        if (game.winnerId === Number(userEntrantId)) wins++;
+        else losses++;
 
-      const userEntrantId = Number(set.slots[userSlotIndex].entrant.id);
-
-      if (set.games) {
-        for (const game of set.games) {
-          if (game.winnerId === userEntrantId) wins++;
-          else losses++;
-
-          if (!game.selections) continue;
-          const selection = game.selections.find((s) =>
-            s.entrant.participants.some((p) => p.player.id === playerId),
-          );
-          if (selection) {
-            const charId = selection.selectionValue;
-            charUsage[charId] = (charUsage[charId] || 0) + 1;
-          }
+        const selection = this.findCharacterSelection(game, userEntrantId);
+        if (selection) {
+          const charId = selection.selectionValue;
+          charUsage[charId] = (charUsage[charId] || 0) + 1;
         }
       }
     }
@@ -271,18 +279,13 @@ export class StartGGSmashData implements ISmashData {
     let wins = 0;
     let losses = 0;
 
-    const eventSets = recentSets.filter((s) => s.event.id === eventId);
+    const eventSets = recentSets.filter((s) => s.event?.id === eventId);
 
     for (const set of eventSets) {
-      const userSlotIndex = set.slots.findIndex((s) =>
-        s.entrant.participants.some((p) => p.player.id === playerId),
-      );
+      const userEntrantId = this.findUserEntrantId(set, playerId);
+      if (!userEntrantId) continue;
 
-      if (userSlotIndex === -1) continue;
-
-      const userEntrantId = Number(set.slots[userSlotIndex].entrant.id);
-
-      if (set.winnerId === userEntrantId) wins++;
+      if (set.winnerId === Number(userEntrantId)) wins++;
       else losses++;
     }
 
@@ -296,23 +299,17 @@ export class StartGGSmashData implements ISmashData {
   ): { name: string; icon?: string } | undefined {
     const charCounts: Record<number, number> = {};
 
-    const eventSets = recentSets.filter((s) => s.event.id === eventId);
+    const eventSets = recentSets.filter((s) => s.event?.id === eventId);
 
     for (const set of eventSets) {
-      const userSlotIndex = set.slots.findIndex((s) =>
-        s.entrant.participants.some((p) => p.player.id === playerId),
-      );
+      const userEntrantId = this.findUserEntrantId(set, playerId);
+      if (!userEntrantId) continue;
 
-      if (userSlotIndex !== -1 && set.games) {
-        for (const game of set.games) {
-          if (!game.selections) continue;
-          const selection = game.selections.find((s) =>
-            s.entrant.participants.some((p) => p.player.id === playerId),
-          );
-          if (selection) {
-            charCounts[selection.selectionValue] =
-              (charCounts[selection.selectionValue] || 0) + 1;
-          }
+      for (const game of set.games ?? []) {
+        const selection = this.findCharacterSelection(game, userEntrantId);
+        if (selection) {
+          charCounts[selection.selectionValue] =
+            (charCounts[selection.selectionValue] || 0) + 1;
         }
       }
     }
@@ -327,5 +324,28 @@ export class StartGGSmashData implements ISmashData {
       name: getCharacterName(topCharId),
       icon: getCharacterIcon(topCharId),
     };
+  }
+
+  /** Resolves which entrant in a set belongs to the given player. */
+  private findUserEntrantId(set: Set, playerId: string): string | undefined {
+    const slot = set.slots?.find((s) =>
+      s.entrant?.participants?.some((p) => p.player?.id === playerId),
+    );
+    return slot?.entrant?.id;
+  }
+
+  /**
+   * Game selections are matched by entrant id rather than by nested
+   * participants, keeping GET_PLAYER_SETS under start.gg's complexity cap.
+   */
+  private findCharacterSelection(
+    game: Game,
+    userEntrantId: string,
+  ): GameSelection | undefined {
+    return game.selections?.find(
+      (s) =>
+        s.selectionType === CHARACTER_SELECTION_TYPE &&
+        String(s.entrant?.id) === String(userEntrantId),
+    );
   }
 }
