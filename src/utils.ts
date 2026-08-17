@@ -12,9 +12,35 @@ import {
  * are evaluated, so a top-level read would always miss values from `.env`.
  * Hosts also matter here — Azure App Service runs in UTC, so relying on the
  * system zone would render dates a day off for anyone west of it.
+ *
+ * The value is validated once and memoized. `Intl` throws a `RangeError` on a
+ * bad IANA name, and because every caller sits inside the refresh loop's
+ * `try`, an unchecked bad value would silently fail every cycle forever rather
+ * than surfacing anywhere. Falling back loudly keeps the display updating.
  */
+let resolvedTimeZone: string | undefined;
+
 function getTimeZone(): string {
-  return process.env.TIMEZONE || DEFAULT_TIME_ZONE;
+  if (resolvedTimeZone !== undefined) return resolvedTimeZone;
+
+  const configured = process.env.TIMEZONE?.trim();
+  if (!configured) {
+    resolvedTimeZone = DEFAULT_TIME_ZONE;
+    return resolvedTimeZone;
+  }
+
+  try {
+    new Intl.DateTimeFormat("en-CA", { timeZone: configured });
+    resolvedTimeZone = configured;
+  } catch {
+    console.error(
+      `Invalid TIMEZONE "${configured}", falling back to ${DEFAULT_TIME_ZONE}. ` +
+        "Expected an IANA name such as America/Los_Angeles.",
+    );
+    resolvedTimeZone = DEFAULT_TIME_ZONE;
+  }
+
+  return resolvedTimeZone;
 }
 
 /** Start.gg returns unix timestamps in seconds. */

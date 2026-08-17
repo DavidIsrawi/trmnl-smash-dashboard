@@ -10,7 +10,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "build": "npm run clean && tsc && npm run copy:assets",
-    "copy:assets": "cp -R src/data dist/data",
+    "copy:assets": "rm -rf dist/data && mkdir -p dist && cp -R src/data dist/data",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "preview": "tsx src/preview.ts",

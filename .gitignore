@@ -6,4 +6,7 @@ preview.html
 GEMINI.md
 .gemini
 .playwright-cli
-.vscode
+
+# Ignore personal editor state, but keep the shared debug config.
+.vscode/*
+!.vscode/launch.json
