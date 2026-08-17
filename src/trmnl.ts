@@ -1,4 +1,5 @@
 import type { SmashPluginData } from "./types.js";
+import { withRetry } from "./utils.js";
 
 export class TrmnlClient {
   private webhookUrl: string;
@@ -8,7 +9,7 @@ export class TrmnlClient {
   }
 
   async pushData(payload: SmashPluginData) {
-    try {
+    await withRetry(async () => {
       const response = await fetch(this.webhookUrl, {
         method: "POST",
         headers: {
@@ -22,9 +23,6 @@ export class TrmnlClient {
           `TRMNL API Error: ${response.status} ${response.statusText}`,
         );
       }
-    } catch (error) {
-      console.error("Failed to push data to TRMNL:", error);
-      throw error;
-    }
+    }, "Pushing data to TRMNL");
   }
 }

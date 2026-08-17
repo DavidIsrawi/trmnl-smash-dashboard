@@ -20,6 +20,8 @@ import {
   calculateDaysRemaining,
   formatDate,
   calculateUpsetFactor,
+  sameId,
+  withRetry,
 } from "../utils.js";
 import type {
   ISmashData,
@@ -27,7 +29,7 @@ import type {
   User,
   UpcomingTournament,
   RecentEventNode,
-  Set,
+  PlayerSet,
   Game,
   GameSelection,
 } from "../types.js";
@@ -69,8 +71,9 @@ export class StartGGSmashData implements ISmashData {
   private async fetchCurrentUser(): Promise<User> {
     if (this.cachedUser) return this.cachedUser;
 
-    const data = await this.client.request<{ currentUser: User }>(
-      GET_CURRENT_USER,
+    const data = await withRetry(
+      () => this.client.request<{ currentUser: User }>(GET_CURRENT_USER),
+      "Fetching current user",
     );
     if (!data.currentUser) {
       throw new Error(
@@ -86,9 +89,13 @@ export class StartGGSmashData implements ISmashData {
     userId: string,
   ): Promise<UpcomingTournament[]> {
     try {
-      const data = await this.client.request<{
-        user: { tournaments: { nodes: UpcomingTournament[] } };
-      }>(GET_UPCOMING_TOURNAMENTS, { userId });
+      const data = await withRetry(
+        () =>
+          this.client.request<{
+            user: { tournaments: { nodes: UpcomingTournament[] } };
+          }>(GET_UPCOMING_TOURNAMENTS, { userId }),
+        "Fetching upcoming tournaments",
+      );
       return data.user.tournaments.nodes;
     } catch (e) {
       console.error("Error fetching upcoming tournaments:", e);
@@ -98,9 +105,13 @@ export class StartGGSmashData implements ISmashData {
 
   private async fetchRecentEvents(userId: string): Promise<ProcessedEvent[]> {
     try {
-      const data = await this.client.request<{
-        user: { events: { nodes: RecentEventNode[] } };
-      }>(GET_RECENT_EVENTS, { userId });
+      const data = await withRetry(
+        () =>
+          this.client.request<{
+            user: { events: { nodes: RecentEventNode[] } };
+          }>(GET_RECENT_EVENTS, { userId }),
+        "Fetching recent events",
+      );
 
       return data.user.events.nodes.map((node) => ({
         ...node,
@@ -116,15 +127,19 @@ export class StartGGSmashData implements ISmashData {
   private async fetchPlayerSets(
     playerId: string,
     limit: number,
-  ): Promise<Set[]> {
-    const sets: Set[] = [];
+  ): Promise<PlayerSet[]> {
+    const sets: PlayerSet[] = [];
 
     for (let page = 1; sets.length < limit; page++) {
       const perPage = Math.min(SETS_PER_REQUEST, limit - sets.length);
 
-      const data = await this.client.request<{
-        player: { sets: { nodes: Set[] } | null } | null;
-      }>(GET_PLAYER_SETS, { playerId, page, perPage });
+      const data = await withRetry(
+        () =>
+          this.client.request<{
+            player: { sets: { nodes: PlayerSet[] } | null } | null;
+          }>(GET_PLAYER_SETS, { playerId, page, perPage }),
+        `Fetching player sets (page ${page})`,
+      );
 
       const nodes = data.player?.sets?.nodes ?? [];
       sets.push(...nodes);
@@ -141,11 +156,13 @@ export class StartGGSmashData implements ISmashData {
     userData: User,
     upcoming: UpcomingTournament[],
     recentEvents: ProcessedEvent[],
-    recentSets: Set[],
+    recentSets: PlayerSet[],
   ): SmashPluginData {
+    const playerId = userData.player.id;
+
     const { wins, losses, charUsage } = this.computeSeasonStats(
       recentSets,
-      userData.player.id,
+      playerId,
     );
     const totalGames = wins + losses;
     const winRate = totalGames > 0 ? Math.round((wins / totalGames) * 100) : 0;
@@ -170,39 +187,7 @@ export class StartGGSmashData implements ISmashData {
         }
       : undefined;
 
-    const latestEvent = recentEvents[0];
-    const latestResult = latestEvent
-      ? this.processTournament(
-          latestEvent,
-          this.computeEventRecord(
-            recentSets,
-            latestEvent.id,
-            userData.player.id,
-          ),
-          this.findMostPlayedCharInEvent(
-            recentSets,
-            latestEvent.id,
-            userData.player.id,
-          ),
-        )
-      : undefined;
-
-    const previousEvent = recentEvents[1];
-    const previousResult = previousEvent
-      ? this.processTournament(
-          previousEvent,
-          this.computeEventRecord(
-            recentSets,
-            previousEvent.id,
-            userData.player.id,
-          ),
-          this.findMostPlayedCharInEvent(
-            recentSets,
-            previousEvent.id,
-            userData.player.id,
-          ),
-        )
-      : undefined;
+    const [latestEvent, previousEvent] = recentEvents;
 
     return {
       user: {
@@ -216,9 +201,28 @@ export class StartGGSmashData implements ISmashData {
         top_chars: sortedChars,
       },
       next_tournament: nextTournament,
-      latest_result: latestResult,
-      previous_result: previousResult,
+      latest_result: this.buildEventResult(latestEvent, recentSets, playerId),
+      previous_result: this.buildEventResult(
+        previousEvent,
+        recentSets,
+        playerId,
+      ),
     };
+  }
+
+  /** Combines an event with the record and character usage derived from its sets. */
+  private buildEventResult(
+    event: ProcessedEvent | undefined,
+    recentSets: PlayerSet[],
+    playerId: string,
+  ): ProcessedTournament | undefined {
+    if (!event) return undefined;
+
+    return this.processTournament(
+      event,
+      this.computeEventRecord(recentSets, event.id, playerId),
+      this.findMostPlayedCharInEvent(recentSets, event.id, playerId),
+    );
   }
 
   private processTournament(
@@ -245,7 +249,7 @@ export class StartGGSmashData implements ISmashData {
   }
 
   private computeSeasonStats(
-    recentSets: Set[],
+    recentSets: PlayerSet[],
     playerId: string,
   ): { wins: number; losses: number; charUsage: Record<string, number> } {
     let wins = 0;
@@ -257,7 +261,7 @@ export class StartGGSmashData implements ISmashData {
       if (!userEntrantId) continue;
 
       for (const game of set.games ?? []) {
-        if (game.winnerId === Number(userEntrantId)) wins++;
+        if (sameId(game.winnerId, userEntrantId)) wins++;
         else losses++;
 
         const selection = this.findCharacterSelection(game, userEntrantId);
@@ -272,20 +276,18 @@ export class StartGGSmashData implements ISmashData {
   }
 
   private computeEventRecord(
-    recentSets: Set[],
+    recentSets: PlayerSet[],
     eventId: string,
     playerId: string,
-  ): { wins: number; losses: number } {
+  ): EventSetRecord {
     let wins = 0;
     let losses = 0;
 
-    const eventSets = recentSets.filter((s) => s.event?.id === eventId);
-
-    for (const set of eventSets) {
+    for (const set of this.setsForEvent(recentSets, eventId)) {
       const userEntrantId = this.findUserEntrantId(set, playerId);
       if (!userEntrantId) continue;
 
-      if (set.winnerId === Number(userEntrantId)) wins++;
+      if (sameId(set.winnerId, userEntrantId)) wins++;
       else losses++;
     }
 
@@ -293,23 +295,21 @@ export class StartGGSmashData implements ISmashData {
   }
 
   private findMostPlayedCharInEvent(
-    recentSets: Set[],
+    recentSets: PlayerSet[],
     eventId: string,
     playerId: string,
-  ): { name: string; icon?: string } | undefined {
-    const charCounts: Record<number, number> = {};
+  ): CharacterInfo | undefined {
+    const charCounts: Record<string, number> = {};
 
-    const eventSets = recentSets.filter((s) => s.event?.id === eventId);
-
-    for (const set of eventSets) {
+    for (const set of this.setsForEvent(recentSets, eventId)) {
       const userEntrantId = this.findUserEntrantId(set, playerId);
       if (!userEntrantId) continue;
 
       for (const game of set.games ?? []) {
         const selection = this.findCharacterSelection(game, userEntrantId);
         if (selection) {
-          charCounts[selection.selectionValue] =
-            (charCounts[selection.selectionValue] || 0) + 1;
+          const charId = selection.selectionValue;
+          charCounts[charId] = (charCounts[charId] || 0) + 1;
         }
       }
     }
@@ -326,10 +326,17 @@ export class StartGGSmashData implements ISmashData {
     };
   }
 
+  private setsForEvent(recentSets: PlayerSet[], eventId: string): PlayerSet[] {
+    return recentSets.filter((s) => sameId(s.event?.id, eventId));
+  }
+
   /** Resolves which entrant in a set belongs to the given player. */
-  private findUserEntrantId(set: Set, playerId: string): string | undefined {
+  private findUserEntrantId(
+    set: PlayerSet,
+    playerId: string,
+  ): string | undefined {
     const slot = set.slots?.find((s) =>
-      s.entrant?.participants?.some((p) => p.player?.id === playerId),
+      s.entrant?.participants?.some((p) => sameId(p.player?.id, playerId)),
     );
     return slot?.entrant?.id;
   }
@@ -345,7 +352,7 @@ export class StartGGSmashData implements ISmashData {
     return game.selections?.find(
       (s) =>
         s.selectionType === CHARACTER_SELECTION_TYPE &&
-        String(s.entrant?.id) === String(userEntrantId),
+        sameId(s.entrant?.id, userEntrantId),
     );
   }
 }

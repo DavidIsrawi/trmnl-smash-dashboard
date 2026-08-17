@@ -11,14 +11,9 @@ const characterMap = new Map<number, CharacterData>();
 function loadCharacters(): void {
   if (characterMap.size > 0) return;
 
-  // Works from both src/ (tsx) and dist/ (node): both resolve to <project>/src/data/
-  const jsonPath = path.join(
-    __dirname,
-    "..",
-    "src",
-    "data",
-    "smash-characters.json",
-  );
+  // Resolved relative to this module, so it works from src/ (tsx) and from
+  // dist/ (node). The build step copies src/data alongside the compiled output.
+  const jsonPath = path.join(__dirname, "data", "smash-characters.json");
   const raw = fs.readFileSync(jsonPath, "utf-8");
   const data: CharactersJson = JSON.parse(raw);
 
