@@ -4,7 +4,7 @@ A lightweight integration that brings your **Super Smash Bros. Ultimate** tourna
 
 ![Start.gg](https://img.shields.io/badge/Start.gg-GraphQL%20API-blue)
 ![TRMNL](https://img.shields.io/badge/TRMNL-Webhook-green)
-![Node.js](https://img.shields.io/badge/Node.js-18+-brightgreen)
+![Node.js](https://img.shields.io/badge/Node.js-24+-brightgreen)
 
 ## Dashboard Preview
 
@@ -87,6 +87,8 @@ The following data is pushed to your TRMNL device via webhook:
    - `TRMNL_WEBHOOK_URL` — Your TRMNL webhook URL
    - `REFRESH_INTERVAL_MINUTES` — Polling interval in minutes (default: 60)
    - `PORT` — Health check server port (default: 8080)
+   - `TIMEZONE` — IANA timezone for dates and countdowns (default: `America/Los_Angeles`). Cloud hosts usually run in UTC, so set this to your local zone.
+   - `DEBUG_PAYLOAD` — Set to `true` to log the full payload JSON each cycle (default: `false`)
 
 ### 4. Local Preview
 
@@ -119,8 +121,9 @@ This project includes a minimal HTTP server for health checks, making it suitabl
 
 ### Azure App Service (Recommended)
 
-1. **Create an App Service** (Linux, Node.js runtime).
+1. **Create an App Service** (Linux, Node.js 24 LTS runtime).
 2. **Set Environment Variables** in the Azure Portal under Configuration > Application settings.
+   - Include `TIMEZONE`; App Service runs in UTC, which otherwise skews dates and countdowns.
 3. **Deploy** via VS Code Azure extension or GitHub Actions.
    - The app listens on `PORT` (default 8080) for health checks.
    - It runs the Start.gg fetch loop in the background.
@@ -140,16 +143,18 @@ src/
     startgg.ts                # Start.gg GraphQL client and data processing
     startgg.types.ts          # Provider-specific TypeScript interfaces
   queries/                    # GraphQL query definitions (user, tournaments, sets)
-  gql/graphql.ts              # Auto-generated GraphQL types (via codegen)
   data/smash-characters.json  # Character data (IDs, names, icon URLs)
   trmnl.ts                    # TRMNL webhook client
   preview.ts                  # Local preview generator using mock data
   characters.ts               # Smash character ID-to-name/icon mapping
   types.ts                    # TypeScript type definitions
-  utils.ts                    # Date formatting and countdown helpers
-  constants.ts                # API URL and game ID constants
+  utils.ts                    # Date, ID, and retry helpers
+  constants.ts                # API URL, game ID, and tuning constants
 trmnl_template.liquid         # Liquid template for the TRMNL e-ink display
 ```
+
+> `npm run build` compiles `src/` to `dist/` and copies `src/data` alongside it, so the
+> character dataset resolves relative to the compiled module at runtime.
 
 ## License
 

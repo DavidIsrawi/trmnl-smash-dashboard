@@ -73,7 +73,11 @@ export interface Game {
   selections: GameSelection[];
 }
 
-export interface Set {
+/**
+ * A set from a player's set history. Named `PlayerSet` rather than `Set` so it
+ * does not shadow the built-in `Set` collection inside consuming modules.
+ */
+export interface PlayerSet {
   id: string;
   winnerId: number;
   slots: SetSlot[];

@@ -9,14 +9,15 @@
   "type": "module",
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc && npm run copy:assets",
+    "copy:assets": "rm -rf dist/data && mkdir -p dist && cp -R src/data dist/data",
     "start": "node dist/index.js",
     "dev": "tsx watch src/index.ts",
     "preview": "tsx src/preview.ts",
-    "codegen": "graphql-codegen --config codegen.ts",
-    "codegen:watch": "graphql-codegen --config codegen.ts --watch",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
     "prettier": "prettier --write .",
-    "test": "echo `Error: no test specified` && exit 0"
+    "test": "echo 'Error: no test specified' && exit 0"
   },
   "dependencies": {
     "dotenv": "^17.3.1",
@@ -25,12 +26,12 @@
     "liquidjs": "^10.10.0"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^6.1.1",
-    "@graphql-codegen/typescript": "^5.0.8",
-    "@graphql-codegen/typescript-operations": "^5.0.8",
+    "@eslint/js": "^9.15.0",
     "@types/node": "^24.0.0",
+    "eslint": "^9.15.0",
     "prettier": "^3.8.1",
     "tsx": "^4.7.1",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.15.0"
   }
 }
