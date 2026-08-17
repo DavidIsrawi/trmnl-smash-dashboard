@@ -158,6 +158,8 @@ export type ContactInfo = {
   nameFirst?: Maybe<Scalars["String"]["output"]>;
   /** Last Name */
   nameLast?: Maybe<Scalars["String"]["output"]>;
+  /** Phone number */
+  phoneNumber?: Maybe<Scalars["String"]["output"]>;
   /** Participant State Name */
   state?: Maybe<Scalars["String"]["output"]>;
   /** Participant State (region) id */
@@ -879,10 +881,9 @@ export type Participant = {
   /** Info for connected accounts to external services. */
   connectedAccounts?: Maybe<Scalars["JSON"]["output"]>;
   /**
-   * Contact Info selected during registration. Falls back to User.location and/or
-   * User.name if necessary. These fields are for admin use only. If you are not a
-   * tournament admin or the participant being queried, these fields will be null.
-   * Do not display this information publicly.
+   * Contact info for the user associated with this participant. These fields are
+   * for admin use only. If you are not a tournament admin or the participant being
+   * queried, these fields will be null. Do not display this information publicly.
    */
   contactInfo?: Maybe<ContactInfo>;
   /** Email of the user, only available to admins within 18 months of tournament completion for tournament administrators. */
@@ -1109,7 +1110,7 @@ export type Player = {
   gamerTag?: Maybe<Scalars["String"]["output"]>;
   id?: Maybe<Scalars["ID"]["output"]>;
   prefix?: Maybe<Scalars["String"]["output"]>;
-  /** Most recent active & published rankings */
+  /** Published rankings from the last 3 years, at most one per ranking series */
   rankings?: Maybe<Array<Maybe<PlayerRank>>>;
   /**
    * Recent sets for this player.
@@ -1136,7 +1137,11 @@ export type PlayerRecentSetsArgs = {
 
 /** A player */
 export type PlayerRecentStandingsArgs = {
+  endAt?: InputMaybe<Scalars["Timestamp"]["input"]>;
+  excludeOnlineEvents?: InputMaybe<Scalars["Boolean"]["input"]>;
   limit?: InputMaybe<Scalars["Int"]["input"]>;
+  onlySinglesEvents?: InputMaybe<Scalars["Boolean"]["input"]>;
+  startAt?: InputMaybe<Scalars["Timestamp"]["input"]>;
   videogameId?: InputMaybe<Scalars["ID"]["input"]>;
 };
 
@@ -1151,9 +1156,15 @@ export type PlayerSetsArgs = {
 export type PlayerRank = {
   __typename?: "PlayerRank";
   id?: Maybe<Scalars["ID"]["output"]>;
+  images?: Maybe<Array<Maybe<Image>>>;
   /** The player's placement on the ranking */
   rank?: Maybe<Scalars["Int"]["output"]>;
   title?: Maybe<Scalars["String"]["output"]>;
+};
+
+/** A player's ranks */
+export type PlayerRankImagesArgs = {
+  type?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 /** An OAuth ProfileAuthorization object */
@@ -1427,6 +1438,7 @@ export type Seed = {
   /** Entrant's win/loss record for this standing. Scores do not include byes. */
   setRecordWithoutByes?: Maybe<Scalars["JSON"]["output"]>;
   standings?: Maybe<Array<Maybe<Standing>>>;
+  updatedAt?: Maybe<Scalars["Timestamp"]["output"]>;
 };
 
 /** A seed for an entrant */
@@ -1689,13 +1701,8 @@ export type ShopLevel = {
   description?: Maybe<Scalars["String"]["output"]>;
   goalAmount?: Maybe<Scalars["Float"]["output"]>;
   id?: Maybe<Scalars["ID"]["output"]>;
-  images?: Maybe<Array<Maybe<Image>>>;
+  images?: Maybe<Scalars["JSON"]["output"]>;
   name?: Maybe<Scalars["String"]["output"]>;
-};
-
-/** A shop level */
-export type ShopLevelImagesArgs = {
-  type?: InputMaybe<Scalars["String"]["input"]>;
 };
 
 export type ShopLevelConnection = {
@@ -2393,37 +2400,23 @@ export type GetPlayerSetsQuery = {
       nodes?: Array<{
         __typename?: "Set";
         id?: string | null;
-        displayScore?: string | null;
         winnerId?: number | null;
-        totalGames?: number | null;
         completedAt?: any | null;
         slots?: Array<{
           __typename?: "SetSlot";
           entrant?: {
             __typename?: "Entrant";
             id?: string | null;
-            name?: string | null;
             participants?: Array<{
               __typename?: "Participant";
-              player?: {
-                __typename?: "Player";
-                id?: string | null;
-                gamerTag?: string | null;
-              } | null;
+              player?: { __typename?: "Player"; id?: string | null } | null;
             } | null> | null;
           } | null;
         } | null> | null;
-        event?: {
-          __typename?: "Event";
-          id?: string | null;
-          name?: string | null;
-          tournament?: {
-            __typename?: "Tournament";
-            name?: string | null;
-          } | null;
-        } | null;
+        event?: { __typename?: "Event"; id?: string | null } | null;
         games?: Array<{
           __typename?: "Game";
+          winnerId?: number | null;
           selections?: Array<{
             __typename?: "GameSelection";
             selectionType?: GameSelectionType | null;
@@ -2491,6 +2484,7 @@ export type GetRecentEventsQuery = {
         } | null;
         userEntrant?: {
           __typename?: "Entrant";
+          initialSeedNum?: number | null;
           standing?: {
             __typename?: "Standing";
             placement?: number | null;
